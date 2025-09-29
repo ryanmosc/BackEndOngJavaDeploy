@@ -16,3 +16,7 @@ spring:
 
 server:
   port: 8080
+
+app:
+  upload:
+    dir: ${user.dir}/src/main/resources/static/uploads  # Pasta para imagens (crie manualmente)
