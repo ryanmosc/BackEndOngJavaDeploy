@@ -51,4 +51,26 @@ public class EventoService {
 
         return repository.save(evento);
     }
+
+    //Delete mapping
+    public void deletar(Long id) {
+        Evento evento = repository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));  // 404 se não existir
+
+        if (evento.getImagem() != null) {
+            // Extrai nome do arquivo do path
+            String fileName = evento.getImagem().replace("/uploads/", "");
+            Path imagePath = Paths.get(uploadDir).resolve(fileName);
+
+            try {
+                if (Files.exists(imagePath)) {
+                    Files.delete(imagePath);  // Deleta o arquivo
+                }
+            } catch (IOException e) {
+                // Log error, mas continue (não pare a deleção do DB)
+            }
+        }
+
+        repository.deleteById(Math.toIntExact(id));  // Deleta do DB
+    }
 }
