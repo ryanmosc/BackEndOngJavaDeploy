@@ -30,7 +30,7 @@ public class EventoController {
         }
     }
 
-    @DeleteMapping("/{id}")  // DELETE para /api/eventos/123
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deletar(@PathVariable Long id) {
         try {
             service.deletar(id);
@@ -39,4 +39,5 @@ public class EventoController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }

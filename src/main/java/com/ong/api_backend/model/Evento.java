@@ -1,6 +1,7 @@
 package com.ong.api_backend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -9,15 +10,17 @@ import java.time.LocalDateTime;
 @Data
 @Table(name = "eventos")
 public class Evento {
-    @Id  // Chave primária
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Auto-incremento
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)  // Não pode ser NULL
+    @NotEmpty
+    @Column(nullable = false)
     private String texto;
 
-    private String imagem;  // Path da imagem (pode ser NULL se não houver imagem)
+    @NotEmpty
+    private String imagem;
 
-    @Column(updatable = false)  // Não atualiza após insert
+    @Column(updatable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();  // Data automática
 }

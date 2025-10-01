@@ -1,22 +1,22 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/BackEndVoluntarios
-    username: postgres
-    password: q1w2e3
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://186.249.46.2:3306/ryan_teste_ong_myadm?useSSL=false&serverTimezone=UTC
+    username: ryan_root
+    password: +Y0dOb9RwPf&b$)E
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
 server:
   port: 8080
 
 app:
   upload:
-    dir: ${user.dir}/src/main/resources/static/uploads  # Pasta para imagens (crie manualmente)
+    dir: ${user.dir}/src/main/resources/static/uploads

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Service
 public class EventoService {
-    @Value("${app.upload.dir}")  // Pega do yml
+    @Value("${app.upload.dir}")
     private String uploadDir;
 
     private final EventoRepository repository;
@@ -64,13 +64,13 @@ public class EventoService {
 
             try {
                 if (Files.exists(imagePath)) {
-                    Files.delete(imagePath);  // Deleta o arquivo
+                    Files.delete(imagePath);
                 }
             } catch (IOException e) {
-                // Log error, mas continue (não pare a deleção do DB)
             }
         }
 
-        repository.deleteById(Math.toIntExact(id));  // Deleta do DB
+        repository.deleteById(Math.toIntExact(id));
     }
+
 }
