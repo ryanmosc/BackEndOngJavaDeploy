@@ -5,7 +5,7 @@ import com.ong.api_backend.service.EventoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/eventos")
 public class EventoController {
@@ -27,6 +27,19 @@ public class EventoController {
             return ResponseEntity.status(201).body(saved);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PutMapping("/{id}")  // Novo: Update por ID
+    public ResponseEntity<Evento> atualizar(
+            @PathVariable Long id,
+            @RequestParam("texto") String texto,
+            @RequestParam(value = "imagem", required = false) MultipartFile imagem) {
+        try {
+            Evento updated = service.atualizar(id, texto, imagem);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();  // 404 se ID não existir
         }
     }
 

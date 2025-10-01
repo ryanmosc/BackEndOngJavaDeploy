@@ -52,6 +52,48 @@ public class EventoService {
         return repository.save(evento);
     }
 
+
+    public Evento atualizar(Long id, String texto, MultipartFile imagem) throws IOException {
+        Evento evento = repository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+
+        if (texto == null || texto.isBlank()) {
+            throw new RuntimeException("Texto é obrigatório");
+        }
+        evento.setTexto(texto);
+
+        if (imagem != null && !imagem.isEmpty()) {
+            String contentType = imagem.getContentType();
+            if (contentType == null || (!contentType.equals("image/jpeg") && !contentType.equals("image/png"))) {
+                throw new RuntimeException("Apenas JPEG ou PNG permitidos");
+            }
+
+
+            if (evento.getImagem() != null) {
+                String oldFileName = evento.getImagem().replace("/uploads/", "");
+                Path oldImagePath = Paths.get(uploadDir).resolve(oldFileName);
+                if (Files.exists(oldImagePath)) {
+                    Files.delete(oldImagePath);
+                }
+            }
+
+
+            Path dirPath = Paths.get(uploadDir);
+            if (!Files.exists(dirPath)) {
+                Files.createDirectories(dirPath);
+            }
+
+            String newFileName = UUID.randomUUID() + "_" + imagem.getOriginalFilename();
+            Path newFilePath = dirPath.resolve(newFileName);
+            Files.copy(imagem.getInputStream(), newFilePath);
+
+            evento.setImagem("/uploads/" + newFileName);
+        }
+
+
+        return repository.save(evento);
+    }
+
     //Delete mapping
     public void deletar(Long id) {
         Evento evento = repository.findById(Math.toIntExact(id))
