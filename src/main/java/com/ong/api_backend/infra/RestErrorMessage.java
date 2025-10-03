@@ -24,6 +24,6 @@ public class RestErrorMessage {
         this.status = status;
         this.statusCode = statusCode;
         this.date = date;
-        this.errors = null; // Pode ser null se não houver erros detalhados
+        this.errors = null;
     }
 }

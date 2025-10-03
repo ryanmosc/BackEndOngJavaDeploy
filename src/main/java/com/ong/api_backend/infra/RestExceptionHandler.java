@@ -1,6 +1,7 @@
 package com.ong.api_backend.infra;
 
 import com.ong.api_backend.exceptions.DadosInvalidosException;
+import com.ong.api_backend.exceptions.DadosNaoEncontrados;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,17 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(threatResponse);
+    }
+
+    @ExceptionHandler(DadosNaoEncontrados.class)
+    public ResponseEntity<RestErrorMessage> dadosNaoEncontrados(DadosNaoEncontrados exception) {
+        RestErrorMessage threatResponse = new RestErrorMessage(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND,
+                HttpStatus.NOT_FOUND.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(threatResponse);
     }
 
     @Override

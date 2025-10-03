@@ -19,4 +19,5 @@ server:
 
 app:
   upload:
-    dir: ${user.dir}/src/main/resources/static/uploads
+    dir: C:/temp/uploads/eventosImages
+  base-url: http://localhost:8080
