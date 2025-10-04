@@ -43,7 +43,7 @@ public class EventoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
+    public ResponseEntity<String> deletar(@PathVariable Long id) throws IOException {
         service.deletar(id);
         return ResponseEntity.ok("Evento deletado com sucesso");
     }

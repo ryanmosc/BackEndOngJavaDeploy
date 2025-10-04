@@ -2,7 +2,8 @@ package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.Atualizacoes;
 import com.ong.api_backend.model.Evento;
-import com.ong.api_backend.service.AualizacoesService;
+import com.ong.api_backend.service.AtualizacoesService;
+
 import com.ong.api_backend.service.EventoService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/gerencia/atualizacoes")
 public class AtualizacoesController {
-    private final AualizacoesService service;
+    private final AtualizacoesService service;
 
     @Value("${app.upload.dir}")
     private String uploadDir;
 
-    public AtualizacoesController(AualizacoesService service) {
+    public AtualizacoesController(AtualizacoesService service) {
         this.service = service;
     }
 
@@ -46,7 +47,7 @@ public class AtualizacoesController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletar(@PathVariable Long id) {
-        service.deletar(id);
+        service.deletar(Math.toIntExact(id));
         return ResponseEntity.ok("Atualização deletada com sucesso");
     }
 
