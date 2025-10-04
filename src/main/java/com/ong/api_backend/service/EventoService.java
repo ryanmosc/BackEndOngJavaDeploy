@@ -114,6 +114,6 @@ public class EventoService {
     }
 
     public List<Evento> listarTodos() {
-        return repository.findAll();
+        return repository.findTop3ByOrderByIdDesc();
     }
 }
