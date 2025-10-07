@@ -1,10 +1,9 @@
 package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.Atualizacoes;
-import com.ong.api_backend.model.Evento;
 import com.ong.api_backend.service.AtualizacoesService;
-
-import com.ong.api_backend.service.EventoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/gerencia/atualizacoes")
 public class AtualizacoesController {
+    private static final Logger logger = LoggerFactory.getLogger(AtualizacoesController.class);
     private final AtualizacoesService service;
 
     @Value("${app.upload.dir}")
@@ -24,16 +24,24 @@ public class AtualizacoesController {
 
     public AtualizacoesController(AtualizacoesService service) {
         this.service = service;
+        logger.debug("AtualizacoesController initialized");
     }
 
     @PostMapping
     public ResponseEntity<Atualizacoes> adicionar(
             @RequestParam("texto") String texto,
             @RequestParam(value = "imagem", required = false) MultipartFile imagem) throws IOException {
-        Atualizacoes atualizacoes = new Atualizacoes();
-        atualizacoes.setTexto(texto);
-        Atualizacoes saved = service.salvar(atualizacoes, imagem);
-        return ResponseEntity.status(201).body(saved);
+        logger.info("Received request to add new Atualizacoes with texto: {}", texto);
+        try {
+            Atualizacoes atualizacoes = new Atualizacoes();
+            atualizacoes.setTexto(texto);
+            Atualizacoes saved = service.salvar(atualizacoes, imagem);
+            logger.info("Atualizacoes saved successfully with ID: {}", saved.getId());
+            return ResponseEntity.status(201).body(saved);
+        } catch (IOException e) {
+            logger.error("Error saving Atualizacoes: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")
@@ -41,19 +49,35 @@ public class AtualizacoesController {
             @PathVariable Long id,
             @RequestParam("texto") String texto,
             @RequestParam(value = "imagem", required = false) MultipartFile imagem) throws IOException {
-        Atualizacoes updated = service.atualizar(Math.toIntExact(id), texto, imagem);
-        return ResponseEntity.ok(updated);
+        logger.info("Received request to update Atualizacoes with ID: {}", id);
+        try {
+            Atualizacoes updated = service.atualizar(Math.toIntExact(id), texto, imagem);
+            logger.info("Atualizacoes updated successfully with ID: {}", id);
+            return ResponseEntity.ok(updated);
+        } catch (IOException e) {
+            logger.error("Error updating Atualizacoes with ID {}: {}", id, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletar(@PathVariable Long id) {
-        service.deletar(Math.toIntExact(id));
-        return ResponseEntity.ok("Atualização deletada com sucesso");
+        logger.info("Received request to delete Atualizacoes with ID: {}", id);
+        try {
+            service.deletar(Math.toIntExact(id));
+            logger.info("Atualizacoes deleted successfully with ID: {}", id);
+            return ResponseEntity.ok("Atualização deletada com sucesso");
+        } catch (Exception e) {
+            logger.error("Error deleting Atualizacoes with ID {}: {}", id, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @GetMapping
     public ResponseEntity<List<Atualizacoes>> listarTodos() {
+        logger.info("Received request to list all Atualizacoes");
         List<Atualizacoes> eventos = service.listarTodos();
+        logger.debug("Returning {} Atualizacoes", eventos.size());
         return ResponseEntity.ok(eventos);
     }
 }

@@ -1,0 +1,52 @@
+2025-10-07 07:53:46 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.3.Final
+2025-10-07 07:53:46 [restartedMain] INFO  c.o.a.ApiBackendApplication - Starting ApiBackendApplication using Java 17.0.15 with PID 13904 (C:\Users\Ryan\Desktop\api-backend\target\classes started by Ryan in C:\Users\Ryan\Desktop\api-backend)
+2025-10-07 07:53:46 [restartedMain] INFO  c.o.a.ApiBackendApplication - No active profile set, falling back to 1 default profile: "default"
+2025-10-07 07:53:46 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-10-07 07:53:46 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-10-07 07:53:48 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-10-07 07:53:48 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 95 ms. Found 5 JPA repository interfaces.
+2025-10-07 07:53:49 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-07 07:53:50 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-10-07 07:53:50 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-07 07:53:50 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.46]
+2025-10-07 07:53:50 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-10-07 07:53:50 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3462 ms
+2025-10-07 07:53:50 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-10-07 07:53:50 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.29.Final
+2025-10-07 07:53:50 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-10-07 07:53:51 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-10-07 07:53:51 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-10-07 07:53:51 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1f5a9ae6
+2025-10-07 07:53:51 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-10-07 07:53:51 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-07 07:53:51 [restartedMain] WARN  org.hibernate.orm.deprecation - HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2025-10-07 07:53:51 [restartedMain] INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-10-07 07:53:52 [restartedMain] INFO  o.h.m.i.EntityInstantiatorPojoStandard - HHH000182: No default (no-argument) constructor for class: com.ong.api_backend.model.FormularioCadastroVoluntario (class must be instantiated by Interceptor)
+2025-10-07 07:53:52 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-10-07 07:53:52 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-10-07 07:53:53 [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-10-07 07:53:54 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-07 07:53:54 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-10-07 07:53:54 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-10-07 07:53:54 [restartedMain] INFO  c.o.a.ApiBackendApplication - Started ApiBackendApplication in 9.365 seconds (process running for 10.531)
+2025-10-07 07:54:14 [http-nio-8080-exec-4] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-07 07:54:14 [http-nio-8080-exec-4] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-10-07 07:54:14 [http-nio-8080-exec-4] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 17 ms
+2025-10-07 07:54:15 [http-nio-8080-exec-4] INFO  c.o.a.c.FaleConoscoController - Received request to save FaleConosco message
+2025-10-07 07:54:15 [http-nio-8080-exec-4] INFO  c.o.a.service.FaleConoscoService - Attempting to save FaleConosco message
+2025-10-07 07:54:15 [http-nio-8080-exec-4] INFO  c.o.a.service.FaleConoscoService - FaleConosco message saved successfully
+2025-10-07 07:54:15 [http-nio-8080-exec-4] INFO  c.o.a.c.FaleConoscoController - FaleConosco message saved successfully
+2025-10-07 07:54:22 [http-nio-8080-exec-3] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<java.lang.String> com.ong.api_backend.controller.FaleConoscoController.saveAll(com.ong.api_backend.model.FaleConosco) with 2 errors: [Field error in object 'faleConosco' on field 'nomeCompleto': rejected value []; codes [Size.faleConosco.nomeCompleto,Size.nomeCompleto,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [faleConosco.nomeCompleto,nomeCompleto]; arguments []; default message [nomeCompleto],100,2]; default message [Nome deve ter entre 2 e 100 caracteres]] [Field error in object 'faleConosco' on field 'nomeCompleto': rejected value []; codes [NotEmpty.faleConosco.nomeCompleto,NotEmpty.nomeCompleto,NotEmpty.java.lang.String,NotEmpty]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [faleConosco.nomeCompleto,nomeCompleto]; arguments []; default message [nomeCompleto]]; default message [Nome completo é obrigatório]] ]
+2025-10-07 07:54:28 [http-nio-8080-exec-5] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<java.lang.String> com.ong.api_backend.controller.FaleConoscoController.saveAll(com.ong.api_backend.model.FaleConosco): [Field error in object 'faleConosco' on field 'nomeCompleto': rejected value [ ]; codes [Size.faleConosco.nomeCompleto,Size.nomeCompleto,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [faleConosco.nomeCompleto,nomeCompleto]; arguments []; default message [nomeCompleto],100,2]; default message [Nome deve ter entre 2 e 100 caracteres]] ]
+2025-10-07 08:03:57 [SpringApplicationShutdownHook] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2025-10-07 08:03:57 [tomcat-shutdown] INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2025-10-07 08:03:57 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-10-07 08:03:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-10-07 08:03:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

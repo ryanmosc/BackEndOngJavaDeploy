@@ -1,0 +1,46 @@
+<configuration>
+
+    <!-- Encoder padrão -->
+    <encoder name="DEFAULT">
+        <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+
+    <!-- Saída no console -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Saída para arquivo com rotação diária -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- Nome do arquivo atual -->
+        <file>logs/estoque.log</file>
+
+        <!-- Política de rotação -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Novo arquivo por dia -->
+            <fileNamePattern>logs/estoque-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- Guardar arquivos por 30 dias -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <!-- Padrão do log -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger principal -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- Logger específico do seu pacote -->
+    <logger name="com.ryanmosc.ApiRestEstoque" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+</configuration>
