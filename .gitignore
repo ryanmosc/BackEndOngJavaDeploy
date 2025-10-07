@@ -32,5 +32,18 @@ build/
 ### VS Code ###
 .vscode/
 
-.resources
-!**/src/maim/java/resources
+# Ignorar logs
+logs/
+*.log
+
+# Ignorar pasta resources inteira (caso queira)
+src/main/resources/
+!src/main/resources/static/
+!src/main/resources/templates/
+
+# Ignorar arquivo específico
+src/main/resources/application.yml
+
+# Corrigir erro de digitação (era 'maim' em vez de 'main')
+!**/src/main/java/resources/
+
