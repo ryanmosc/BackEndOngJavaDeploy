@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://186.249.46.2:5432/ryan_teste_ong_postgres
-    username: ryan_teste_postgres
-    password: "J,y0}H3CLg^3iWPM"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,9 +15,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 app:
   upload:
-    dir: C:/temp/uploads/eventosImages
-  base-url: http://localhost:8080
+    dir: /app/uploads
+  base-url: ${BASE_URL:http://localhost:8080}
