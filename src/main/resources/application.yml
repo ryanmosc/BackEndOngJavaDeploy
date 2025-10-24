@@ -20,4 +20,10 @@ server:
 app:
   upload:
     dir: C:/temp/uploads/eventosImages
-  base-url: http://localhost:8080
+  base-url: https://voluntariosdasaude.com.br/
+
+cloudinary:
+  cloud_name: dzlkeuso1
+  api_key: 293269619759282
+  api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
+

@@ -30,7 +30,7 @@ public class EventoController {
     @PostMapping
     public ResponseEntity<Evento> adicionar(
             @RequestParam("texto") String texto,
-            @RequestParam(value = "imagem", required = false) MultipartFile imagem) throws IOException {
+            @RequestParam(value = "file-1", required = false) MultipartFile imagem) throws IOException {
         logger.info("Received request to add new Evento with texto: {}", texto);
         try {
             Evento evento = new Evento();
@@ -48,7 +48,7 @@ public class EventoController {
     public ResponseEntity<Evento> atualizar(
             @PathVariable Long id,
             @RequestParam("texto") String texto,
-            @RequestParam(value = "imagem", required = false) MultipartFile imagem) throws IOException {
+            @RequestParam(value = "file-1", required = false) MultipartFile imagem) throws IOException {
         logger.info("Received request to update Evento with ID: {}", id);
         try {
             Evento updated = service.atualizar(id, texto, imagem);

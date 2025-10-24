@@ -18,7 +18,7 @@ public class Evento {
     @Column(nullable = false)
     private String texto;
 
-    @NotEmpty
+
     private String imagem;
 
     @Column(updatable = false)

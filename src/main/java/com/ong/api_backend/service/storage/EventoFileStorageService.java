@@ -1,48 +1,36 @@
 package com.ong.api_backend.service.storage;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.ong.api_backend.exceptions.DadosInvalidosException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class EventoFileStorageService {
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+    private final Cloudinary cloudinary;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
+    public EventoFileStorageService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
 
     public String salvarArquivo(MultipartFile arquivo, String subpasta) throws IOException {
         validarArquivo(arquivo);
-
-        Path dirPath = Paths.get(uploadDir, subpasta);
-        if (!Files.exists(dirPath)) {
-            Files.createDirectories(dirPath);
+        try {
+            Map uploadResult = cloudinary.uploader().upload(arquivo.getBytes(),
+                    ObjectUtils.asMap("folder", subpasta));
+            return uploadResult.get("secure_url").toString();
+        } catch (Exception e) {
+            throw new IOException("Erro ao enviar imagem para o Cloudinary: " + e.getMessage(), e);
         }
-
-        String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-        Path caminhoArquivo = dirPath.resolve(nomeArquivo);
-
-        Files.copy(arquivo.getInputStream(), caminhoArquivo, StandardCopyOption.REPLACE_EXISTING);
-
-        return baseUrl + "/uploads/" + subpasta + "/" + nomeArquivo;
     }
 
-    public void deletarArquivo(String urlArquivo, String subpasta) throws IOException {
-        if (urlArquivo == null || urlArquivo.isBlank()) return;
+    public void deletarArquivo(String urlArquivo, String subpasta) {
 
-        String nomeArquivo = urlArquivo.replace(baseUrl + "/uploads/" + subpasta + "/", "");
-        Path caminhoArquivo = Paths.get(uploadDir, subpasta).resolve(nomeArquivo);
-
-        if (Files.exists(caminhoArquivo)) {
-            Files.delete(caminhoArquivo);
-        }
     }
 
     private void validarArquivo(MultipartFile arquivo) {
