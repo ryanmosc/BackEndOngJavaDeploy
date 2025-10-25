@@ -27,3 +27,7 @@ cloudinary:
   api_key: 293269619759282
   api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
 
+api:
+  security:
+    token:
+      secret: 43f9e12b8a6c447bb24a9b83d42c8839
