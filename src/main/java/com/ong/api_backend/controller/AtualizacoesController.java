@@ -30,7 +30,7 @@ public class AtualizacoesController {
     @PostMapping
     public ResponseEntity<Atualizacoes> adicionar(
             @RequestParam("texto") String texto,
-            @RequestParam(value = "imagem", required = false) MultipartFile imagem) throws IOException {
+            @RequestParam(value = "file-1", required = false) MultipartFile imagem) throws IOException {
         logger.info("Received request to add new Atualizacoes with texto: {}", texto);
         try {
             Atualizacoes atualizacoes = new Atualizacoes();
@@ -48,10 +48,10 @@ public class AtualizacoesController {
     public ResponseEntity<Atualizacoes> atualizar(
             @PathVariable Long id,
             @RequestParam("texto") String texto,
-            @RequestParam(value = "imagem", required = false) MultipartFile imagem) throws IOException {
+            @RequestParam(value = "file-1", required = false) MultipartFile imagem) throws IOException {
         logger.info("Received request to update Atualizacoes with ID: {}", id);
         try {
-            Atualizacoes updated = service.atualizar(Math.toIntExact(id), texto, imagem);
+            Atualizacoes updated = service.atualizar((long) Math.toIntExact(id), texto, imagem);
             logger.info("Atualizacoes updated successfully with ID: {}", id);
             return ResponseEntity.ok(updated);
         } catch (IOException e) {
@@ -61,10 +61,10 @@ public class AtualizacoesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) {
+    public ResponseEntity<String> deletar(@PathVariable Long id) throws IOException {
         logger.info("Received request to delete Atualizacoes with ID: {}", id);
         try {
-            service.deletar(Math.toIntExact(id));
+            service.deletar((long) Math.toIntExact(id));
             logger.info("Atualizacoes deleted successfully with ID: {}", id);
             return ResponseEntity.ok("Atualização deletada com sucesso");
         } catch (Exception e) {

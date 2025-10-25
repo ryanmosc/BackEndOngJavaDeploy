@@ -3,6 +3,7 @@ package com.ong.api_backend.service;
 import com.ong.api_backend.exceptions.DadosInvalidosException;
 import com.ong.api_backend.exceptions.DadosNaoEncontrados;
 import com.ong.api_backend.model.Atualizacoes;
+import com.ong.api_backend.model.Evento;
 import com.ong.api_backend.repository.AtualizacoesRepository;
 import com.ong.api_backend.service.storage.AtualizacoesFileStorageService;
 import org.slf4j.Logger;
@@ -26,84 +27,46 @@ public class AtualizacoesService {
         logger.debug("AtualizacoesService initialized");
     }
 
-    public Atualizacoes salvar(Atualizacoes atualizacao, MultipartFile imagem) throws IOException {
-        logger.info("Attempting to save Atualizacoes with texto: {}", atualizacao.getTexto());
-        if (atualizacao.getTexto() == null || atualizacao.getTexto().isBlank()) {
-            logger.error("Texto is mandatory for Atualizacoes");
+    public Atualizacoes salvar(Atualizacoes evento, MultipartFile imagem) throws IOException {
+        if (evento.getTexto() == null || evento.getTexto().isBlank()) {
             throw new DadosInvalidosException("Texto é obrigatório");
         }
 
-        try {
-            if (imagem != null && !imagem.isEmpty()) {
-                logger.debug("Processing image upload for Atualizacoes");
-                String imageUrl = fileStorageService.salvarArquivo(imagem);
-                atualizacao.setImagem(imageUrl);
-                logger.info("Image uploaded successfully: {}", imageUrl);
-            }
-            Atualizacoes saved = repository.save(atualizacao);
-            logger.info("Atualizacoes saved successfully with ID: {}", saved.getId());
-            return saved;
-        } catch (IOException e) {
-            logger.error("Error saving Atualizacoes: {}", e.getMessage(), e);
-            throw e;
+        if (imagem != null && !imagem.isEmpty()) {
+            String imageUrl = fileStorageService.salvarArquivo(imagem, "eventosImages");
+            evento.setImagem(imageUrl);
         }
+
+        return repository.save(evento);
     }
 
-    public Atualizacoes atualizar(Integer id, String texto, MultipartFile imagem) throws IOException {
-        logger.info("Attempting to update Atualizacoes with ID: {}", id);
-        Atualizacoes atualizacao = repository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Atualizacoes not found with ID: {}", id);
-                    return new DadosNaoEncontrados("Atualização não encontrada");
-                });
+    public Atualizacoes atualizar(Long id, String texto, MultipartFile imagem) throws IOException {
+        Atualizacoes evento = repository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new DadosNaoEncontrados("Evento não encontrado"));
 
         if (texto == null || texto.isBlank()) {
-            logger.error("Texto is mandatory for updating Atualizacoes with ID: {}", id);
             throw new DadosInvalidosException("Texto é obrigatório");
         }
+        evento.setTexto(texto);
 
-        try {
-            atualizacao.setTexto(texto);
-            if (imagem != null && !imagem.isEmpty()) {
-                logger.debug("Processing image update for Atualizacoes with ID: {}", id);
-                fileStorageService.deletarArquivo(atualizacao.getImagem());
-                String novaImagemUrl = fileStorageService.salvarArquivo(imagem);
-                atualizacao.setImagem(novaImagemUrl);
-                logger.info("Image updated successfully for Atualizacoes ID: {}", id);
-            }
-            Atualizacoes updated = repository.save(atualizacao);
-            logger.info("Atualizacoes updated successfully with ID: {}", id);
-            return updated;
-        } catch (IOException e) {
-            logger.error("Error updating Atualizacoes with ID {}: {}", id, e.getMessage(), e);
-            throw e;
+        if (imagem != null && !imagem.isEmpty()) {
+            fileStorageService.deletarArquivo(evento.getImagem(), "eventosImages");
+            String novaImagem = fileStorageService.salvarArquivo(imagem, "eventosImages");
+            evento.setImagem(novaImagem);
         }
+
+        return repository.save(evento);
     }
 
-    public void deletar(Integer id) {
-        logger.info("Attempting to delete Atualizacoes with ID: {}", id);
-        Atualizacoes atualizacao = repository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Atualizacoes not found with ID: {}", id);
-                    return new DadosNaoEncontrados("Atualização não encontrada");
-                });
+    public void deletar(Long id) throws IOException {
+        Atualizacoes evento = repository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new DadosNaoEncontrados("Evento não encontrado"));
 
-        try {
-            fileStorageService.deletarArquivo(atualizacao.getImagem());
-            logger.debug("Image deleted for Atualizacoes with ID: {}", id);
-            repository.delete(atualizacao);
-            logger.info("Atualizacoes deleted successfully with ID: {}", id);
-        } catch (IOException e) {
-            logger.warn("Failed to delete image for Atualizacoes with ID {}: {}", id, e.getMessage());
-            repository.delete(atualizacao);
-            logger.info("Atualizacoes deleted successfully with ID: {}", id);
-        }
+        fileStorageService.deletarArquivo(evento.getImagem(), "eventosImages");
+        repository.deleteById(Math.toIntExact(id));
     }
 
     public List<Atualizacoes> listarTodos() {
-        logger.info("Listing all Atualizacoes");
-        List<Atualizacoes> atualizacoes = repository.findAll();
-        logger.debug("Returning {} Atualizacoes", atualizacoes.size());
-        return atualizacoes;
+        return repository.findTop3ByOrderByIdDesc();
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/seja_voluntario")
-@CrossOrigin(origins = "http://localhost:5500")
+@CrossOrigin(origins = "*")
 public class FormularioCadastroVoluntarioController {
     private static final Logger logger = LoggerFactory.getLogger(FormularioCadastroVoluntarioController.class);
 
