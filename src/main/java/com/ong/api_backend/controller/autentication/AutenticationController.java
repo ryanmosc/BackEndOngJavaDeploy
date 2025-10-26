@@ -2,11 +2,10 @@ package com.ong.api_backend.controller.autentication;
 
 import com.ong.api_backend.infra.security.TokenService;
 import com.ong.api_backend.model.user.AutenticationDTO;
-
+import com.ong.api_backend.model.user.LoginResponseDTO;
 import com.ong.api_backend.model.user.RegisterDTO;
 import com.ong.api_backend.model.user.User;
 import com.ong.api_backend.repository.UserRepository;
-import com.ong.api_backend.service.login.LoginResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -26,18 +26,26 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        String requestURI = request.getRequestURI();
+        System.out.println("Requisição recebida: " + requestURI);
+        if (requestURI.equals("/auth/login") || requestURI.equals("/auth/register") ||
+                requestURI.equals("/api/fale_conosco") || requestURI.equals("/api/seja_voluntario") ||
+                requestURI.startsWith("/api/gerencia/eventos") || requestURI.startsWith("/api/gerencia/atualizacoes")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         var authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             var token = authHeader.replace("Bearer ", "");
             var login = tokenService.validateToken(token);
             if (!login.isEmpty()) {
                 UserDetails user = userRepository.findByLogin(login);
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (user != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
