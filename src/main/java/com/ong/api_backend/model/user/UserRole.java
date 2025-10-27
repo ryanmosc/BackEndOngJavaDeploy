@@ -1,8 +1,8 @@
 package com.ong.api_backend.model.user;
 
 public enum UserRole {
-    ADMIN("admin"),
-    USER("user");
+    ADMIN("ADMIN"),
+    USER("USER");
 
     private final String role;
 

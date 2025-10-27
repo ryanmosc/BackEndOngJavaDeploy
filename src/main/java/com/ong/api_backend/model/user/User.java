@@ -43,6 +43,10 @@ public class User implements UserDetails {
             return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
     @Override
     public String getPassword() {
         return password;
@@ -55,13 +59,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() { return true; }
-
     @Override
     public boolean isAccountNonLocked() { return true; }
-
     @Override
     public boolean isCredentialsNonExpired() { return true; }
-
     @Override
     public boolean isEnabled() { return true; }
 }

@@ -1,5 +1,6 @@
 package com.ong.api_backend.infra;
 
+import com.ong.api_backend.exceptions.AuthenticationException;
 import com.ong.api_backend.exceptions.DadosInvalidosException;
 import com.ong.api_backend.exceptions.DadosNaoEncontrados;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,17 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(threatResponse);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<RestErrorMessage> dadosInvalidos(AuthenticationException exception) {
+        RestErrorMessage threatResponse = new RestErrorMessage(
+                exception.getMessage(),
+                HttpStatus.FORBIDDEN,
+                HttpStatus.FORBIDDEN.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(threatResponse);
     }
 
     @Override
