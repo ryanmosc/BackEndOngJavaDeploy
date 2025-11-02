@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/seja_voluntario")
 @CrossOrigin(origins = "*")
@@ -34,5 +36,12 @@ public class FormularioCadastroVoluntarioController {
             logger.error("Error saving FormularioCadastroVoluntario: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body("{\"message\": \"Erro ao enviar mensagem\"}");
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FormularioCadastroVoluntario>> getAll(){
+        logger.info("Received request to list all Seja voluntario");
+        List<FormularioCadastroVoluntario> forms = formularioCadastroVoluntarioService.listarTodos();
+        return ResponseEntity.ok(forms);
     }
 }

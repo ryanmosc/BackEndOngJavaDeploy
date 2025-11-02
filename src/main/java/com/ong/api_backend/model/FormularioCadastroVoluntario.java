@@ -29,7 +29,7 @@ public class FormularioCadastroVoluntario {
     @Email(message = "Email inválido")
     private String e_mail;
 
-    private Integer telefone;
+    private Long telefone;
 
     @Column(name = "disponibilidade")
     private String disponibilidade;

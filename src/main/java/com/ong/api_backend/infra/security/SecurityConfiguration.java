@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/seja_voluntario").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/gerencia/eventos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/gerencia/atualizacoes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/seja_voluntario/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/gerencia/eventos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/gerencia/eventos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/gerencia/eventos/**").hasRole("ADMIN")
