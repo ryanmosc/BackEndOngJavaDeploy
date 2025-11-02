@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FaleConoscoService {
     private static final Logger logger = LoggerFactory.getLogger(FaleConoscoService.class);
@@ -26,5 +28,9 @@ public class FaleConoscoService {
             logger.error("Error saving FaleConosco message: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    public List<FaleConosco> listarTodosFale() {
+        return faleConoscoRepository.findAll();
     }
 }

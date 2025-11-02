@@ -8,8 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = "*")
+
+import java.util.List;
+
+
 @RestController
 @RequestMapping("/api/fale_conosco")
 public class FaleConoscoController {
@@ -34,5 +38,12 @@ public class FaleConoscoController {
             logger.error("Error saving FaleConosco message: {}", e.getMessage(), e);
             throw new DadosInvalidosException("Dados inválidos ou faltantes");
         }
+    }
+
+    @GetMapping
+
+    public ResponseEntity<List<FaleConosco>> listarTodos() {
+        List<FaleConosco> lista = faleConoscoService.listarTodosFale();
+        return ResponseEntity.ok(lista);
     }
 }

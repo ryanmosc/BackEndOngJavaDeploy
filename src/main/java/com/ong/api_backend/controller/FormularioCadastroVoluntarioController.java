@@ -7,13 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/seja_voluntario")
-@CrossOrigin(origins = "*")
 public class FormularioCadastroVoluntarioController {
     private static final Logger logger = LoggerFactory.getLogger(FormularioCadastroVoluntarioController.class);
 
@@ -39,9 +39,8 @@ public class FormularioCadastroVoluntarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FormularioCadastroVoluntario>> getAll(){
-        logger.info("Received request to list all Seja voluntario");
-        List<FormularioCadastroVoluntario> forms = formularioCadastroVoluntarioService.listarTodos();
-        return ResponseEntity.ok(forms);
+
+    public ResponseEntity<List<FormularioCadastroVoluntario>> getAll() {
+        return ResponseEntity.ok(formularioCadastroVoluntarioService.listarTodos());
     }
 }

@@ -7,10 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/doacao_mensal")
@@ -36,5 +36,11 @@ public class FormularioDoacaoMensalController {
             logger.error("Error saving FormularioDoacaoMensal: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body("{\"message\": \"Erro ao enviar mensagem\"}");
         }
+    }
+
+    @GetMapping
+
+    public ResponseEntity<List<FormularioDoacaoMensal>> listarTodos() {
+        return ResponseEntity.ok(formularioDoacaoMensalService.listarTodosMensal());
     }
 }

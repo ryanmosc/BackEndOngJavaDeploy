@@ -31,3 +31,4 @@ api:
   security:
     token:
       secret: 43f9e12b8a6c447bb24a9b83d42c8839
+
