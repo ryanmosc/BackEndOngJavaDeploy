@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://186.249.46.2:5432/ryan_teste_ong_postgres
-    username: ryan_teste_postgres
-    password: "J,y0}H3CLg^3iWPM"
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,20 +15,20 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 app:
   upload:
-    dir: C:/temp/uploads/eventosImages
-  base-url: https://voluntariosdasaude.com.br/
+    dir: /app/uploads
+  base-url: ${BASE_URL:http://localhost:8080}
 
 cloudinary:
-  cloud_name: dzlkeuso1
-  api_key: 293269619759282
-  api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
 
 api:
   security:
     token:
-      secret: 43f9e12b8a6c447bb24a9b83d42c8839
-
+      secret: ${JWT_SECRET}
