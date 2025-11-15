@@ -32,26 +32,20 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/fale_conosco").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/seja_voluntario").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/gerencia/eventos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/gerencia/atualizacoes/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/gerencia/eventos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/gerencia/eventos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/gerencia/eventos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/fale_conosco").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/seja_voluntario").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/doacao_mensal").hasAuthority("ROLE_ADMIN")
-
-
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/fale_conosco",
+                                "/api/seja_voluntario",
+                                "/api/doacao_mensal").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/gerencia/eventos",
+                                "/api/gerencia/atualizacoes").permitAll()
+                        .requestMatchers("/api/gerencia/eventos/**",
+                                "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
