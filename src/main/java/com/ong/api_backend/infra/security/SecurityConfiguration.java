@@ -44,6 +44,8 @@ public class SecurityConfiguration {
                                 "/api/gerencia/atualizacoes").permitAll()
                         .requestMatchers("/api/gerencia/eventos/**",
                                 "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
+                        .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
