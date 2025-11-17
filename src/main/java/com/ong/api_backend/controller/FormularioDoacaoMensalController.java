@@ -1,6 +1,7 @@
 package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.FormularioDoacaoMensal;
+import com.ong.api_backend.service.EmailService;
 import com.ong.api_backend.service.FormularioDoacaoMensalService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -20,8 +21,12 @@ public class FormularioDoacaoMensalController {
     @Autowired
     private FormularioDoacaoMensalService formularioDoacaoMensalService;
 
-    public FormularioDoacaoMensalController(FormularioDoacaoMensalService formularioDoacaoMensalService) {
+    @Autowired
+    private EmailService emailService;
+
+    public FormularioDoacaoMensalController(FormularioDoacaoMensalService formularioDoacaoMensalService, EmailService emailService) {
         this.formularioDoacaoMensalService = formularioDoacaoMensalService;
+        this.emailService = emailService;
         logger.debug("FormularioDoacaoMensalController initialized");
     }
 

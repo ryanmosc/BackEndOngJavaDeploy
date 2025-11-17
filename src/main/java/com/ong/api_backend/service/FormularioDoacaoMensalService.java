@@ -17,6 +17,8 @@ public class FormularioDoacaoMensalService {
     @Autowired
     private FormularioDoacaoMensalRepository formularioDoacaoMensalRepository;
 
+    @Autowired
+    private EmailService emailService;
 
 
     public void saveAllFormularioDoacaoMensalService(FormularioDoacaoMensal formularioDoacaoMensal) {
@@ -24,6 +26,12 @@ public class FormularioDoacaoMensalService {
         try {
             formularioDoacaoMensalRepository.saveAndFlush(formularioDoacaoMensal);
             logger.info("FormularioDoacaoMensal saved successfully");
+            emailService.enviarEmail(
+                    formularioDoacaoMensal.getEmail(),
+                    "Recebemos sua mensagem!",
+                    "Olá " + formularioDoacaoMensal.getNomeCompleto() + ", Recebemos sua mensagem! Em breve responderemos."
+            );
+            logger.info("FaleConosco e-mail send successfully");
         } catch (Exception e) {
             logger.error("Error saving FormularioDoacaoMensal: {}", e.getMessage(), e);
             throw e;

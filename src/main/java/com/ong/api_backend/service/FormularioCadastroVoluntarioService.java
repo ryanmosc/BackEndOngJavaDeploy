@@ -17,6 +17,8 @@ public class FormularioCadastroVoluntarioService {
     @Autowired
     private FormularioCadastroVoluntarioRepository formularioCadastroVoluntarioRepository;
 
+    @Autowired
+    private EmailService emailService;
 
 
     public void saveAllFormularioCadastroVoluntariosService(FormularioCadastroVoluntario formularioCadastroVoluntario) {
@@ -24,6 +26,13 @@ public class FormularioCadastroVoluntarioService {
         try {
             formularioCadastroVoluntarioRepository.saveAndFlush(formularioCadastroVoluntario);
             logger.info("FormularioCadastroVoluntario saved successfully");
+
+            emailService.enviarEmail(
+                    formularioCadastroVoluntario.getE_mail(),
+                    "Recebemos sua mensagem!",
+                    "Olá " + formularioCadastroVoluntario.getNome_completo() + ", Recebemos sua mensagem! Em breve responderemos."
+            );
+            logger.info("FaleConosco e-mail send successfully");
         } catch (Exception e) {
             logger.error("Error saving FormularioCadastroVoluntario: {}", e.getMessage(), e);
             throw e;

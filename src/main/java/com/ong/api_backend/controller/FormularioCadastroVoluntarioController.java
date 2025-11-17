@@ -1,6 +1,7 @@
 package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.FormularioCadastroVoluntario;
+import com.ong.api_backend.service.EmailService;
 import com.ong.api_backend.service.FormularioCadastroVoluntarioService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -20,8 +21,12 @@ public class FormularioCadastroVoluntarioController {
     @Autowired
     private FormularioCadastroVoluntarioService formularioCadastroVoluntarioService;
 
-    public FormularioCadastroVoluntarioController(FormularioCadastroVoluntarioService formularioCadastroVoluntarioService) {
+    @Autowired
+    private EmailService emailService;
+
+    public FormularioCadastroVoluntarioController(FormularioCadastroVoluntarioService formularioCadastroVoluntarioService, EmailService emailService) {
         this.formularioCadastroVoluntarioService = formularioCadastroVoluntarioService;
+        this.emailService = emailService;
         logger.debug("FormularioCadastroVoluntarioController initialized");
     }
 
