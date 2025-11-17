@@ -1,5 +1,6 @@
 package com.ong.api_backend.controller;
 
+import com.ong.api_backend.model.EmailDashboardRequest;
 import com.ong.api_backend.repository.FaleConoscoRepository;
 import com.ong.api_backend.repository.FormularioCadastroVoluntarioRepository;
 import com.ong.api_backend.repository.FormularioDoacaoMensalRepository;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
@@ -45,6 +48,16 @@ public class DashboardController {
         resposta.put("faleConosco", faleConoscoRepository.findAll());
 
         return  ResponseEntity.ok(resposta);
+    }
+
+    @PostMapping("/email")
+    public ResponseEntity<?> enviarRespostaEmail(@RequestBody EmailDashboardRequest request){
+        emailService.enviarEmail(
+                request.email(),
+                request.assunto(),
+                request.mensagem()
+        );
+        return ResponseEntity.ok("Email enviado com sucesso");
     }
 
 }
