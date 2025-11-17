@@ -2,6 +2,7 @@ package com.ong.api_backend.controller;
 
 import com.ong.api_backend.exceptions.DadosInvalidosException;
 import com.ong.api_backend.model.FaleConosco;
+import com.ong.api_backend.service.EmailService;
 import com.ong.api_backend.service.FaleConoscoService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -20,10 +21,14 @@ public class FaleConoscoController {
     private static final Logger logger = LoggerFactory.getLogger(FaleConoscoController.class);
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private FaleConoscoService faleConoscoService;
 
-    public FaleConoscoController(FaleConoscoService faleConoscoService) {
+    public FaleConoscoController(FaleConoscoService faleConoscoService, EmailService emailService) {
         this.faleConoscoService = faleConoscoService;
+        this.emailService = emailService;
         logger.debug("FaleConoscoController initialized");
     }
 

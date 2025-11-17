@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://186.249.46.2:3306/ryan_teste_ong_myadm?useSSL=false&serverTimezone=UTC
+    username: ryan_root
+    password: "@mt_26;?blK[C-EN"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -14,21 +14,33 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ryanoliveiramosc.com.098@gmail.com
+    password: uujvweftpdjcqrhm
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
-  port: ${PORT:8080}
+  port: 8080
 
 app:
   upload:
-    dir: /app/uploads
-  base-url: ${BASE_URL:http://localhost:8080}
+    dir: C:/temp/uploads/eventosImages
+
+  base-url: https://voluntariosdasaude.com.br/
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME}
-  api-key: ${CLOUDINARY_API_KEY}
-  api-secret: ${CLOUDINARY_API_SECRET}
-
+  cloud_name: dzlkeuso1
+  api_key: 293269619759282
+  api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
 
 api:
   security:
     token:
-      secret: ${JWT_SECRET}
+      secret: 43f9e12b8a6c447bb24a9b83d42c8839

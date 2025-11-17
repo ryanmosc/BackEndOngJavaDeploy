@@ -17,6 +17,9 @@ public class FaleConoscoService {
     @Autowired
     private FaleConoscoRepository faleConoscoRepository;
 
+    @Autowired
+    private EmailService emailService;
+
 
 
     public void saveAllService(FaleConosco faleConosco) {
@@ -24,6 +27,15 @@ public class FaleConoscoService {
         try {
             faleConoscoRepository.saveAndFlush(faleConosco);
             logger.info("FaleConosco message saved successfully");
+
+            emailService.enviarEmail(
+                    faleConosco.getEmail(),
+                    "Recebemos sua mensagem!",
+                    "Olá " + faleConosco.getNomeCompleto() + ", Recebemos sua mensagem! Em breve responderemos."
+            );
+            logger.info("FaleConosco e-mail send successfully");
+
+
         } catch (Exception e) {
             logger.error("Error saving FaleConosco message: {}", e.getMessage(), e);
             throw e;
