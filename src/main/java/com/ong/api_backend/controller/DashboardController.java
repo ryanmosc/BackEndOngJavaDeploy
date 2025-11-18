@@ -5,6 +5,7 @@ import com.ong.api_backend.repository.FaleConoscoRepository;
 import com.ong.api_backend.repository.FormularioCadastroVoluntarioRepository;
 import com.ong.api_backend.repository.FormularioDoacaoMensalRepository;
 import com.ong.api_backend.service.EmailService;
+import com.ong.api_backend.service.RespostaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class DashboardController {
 
     private final EmailService emailService;
+    private RespostaService respostaService;
     private final FormularioCadastroVoluntarioRepository formularioCadastroVoluntarioRepository;
     private final FormularioDoacaoMensalRepository formularioDoacaoMensalRepository;
     private final FaleConoscoRepository faleConoscoRepository;
@@ -28,6 +30,7 @@ public class DashboardController {
     @Autowired
     public DashboardController(
             EmailService emailService,
+            RespostaService respostaService,
             FormularioCadastroVoluntarioRepository formularioCadastroVoluntarioRepository,
             FormularioDoacaoMensalRepository formularioDoacaoMensalRepository,
             FaleConoscoRepository faleConoscoRepository){
@@ -36,6 +39,7 @@ public class DashboardController {
         this.faleConoscoRepository = faleConoscoRepository;
         this.formularioDoacaoMensalRepository = formularioDoacaoMensalRepository;
         this.formularioCadastroVoluntarioRepository = formularioCadastroVoluntarioRepository;
+        this.respostaService = respostaService;
     }
 
     @GetMapping("/formularios")
@@ -52,12 +56,26 @@ public class DashboardController {
 
     @PostMapping("/email")
     public ResponseEntity<?> enviarRespostaEmail(@RequestBody EmailDashboardRequest request){
+
+        // 1) Envia o e-mail
         emailService.enviarEmail(
                 request.email(),
                 request.assunto(),
                 request.mensagem()
         );
-        return ResponseEntity.ok("Email enviado com sucesso");
+
+        // 2) Salva no banco automaticamente
+        respostaService.registrar(
+                request.nomeFormulario(),
+                request.nome(),
+                request.email(),
+                request.mensagemOriginal(),
+                request.mensagem() // resposta enviada
+        );
+
+        return ResponseEntity.ok("Email enviado e resposta salva com sucesso!");
     }
 
 }
+
+

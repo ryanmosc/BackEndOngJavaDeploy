@@ -22,5 +22,5 @@ public class Evento {
     private String imagem;
 
     @Column(updatable = false)
-    private LocalDateTime dataCriacao = LocalDateTime.now();  // Data automática
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 }
