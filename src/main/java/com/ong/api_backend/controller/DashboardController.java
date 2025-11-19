@@ -57,14 +57,14 @@ public class DashboardController {
     @PostMapping("/email")
     public ResponseEntity<?> enviarRespostaEmail(@RequestBody EmailDashboardRequest request){
 
-        // 1) Envia o e-mail
+
         emailService.enviarEmail(
                 request.email(),
                 request.assunto(),
                 request.mensagem()
         );
 
-        // 2) Salva no banco automaticamente
+
         respostaService.registrar(
                 request.nomeFormulario(),
                 request.nome(),
