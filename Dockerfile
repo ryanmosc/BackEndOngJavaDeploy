@@ -1,33 +1,16 @@
-# Etapa 1: Build (compilar o projeto)
-FROM maven:3.9.9-eclipse-temurin-17 AS build
-
+# Stage 1: build
+FROM maven:3.9.5-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copia arquivos principais
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw mvnw.cmd ./
+RUN mvn dependency:go-offline -B
 
-# Dá permissão de execução ao wrapper Maven
-RUN chmod +x mvnw
+COPY . .
+RUN mvn package -DskipTests
 
-# Baixa dependências (cache)
-RUN ./mvnw dependency:go-offline
-
-# Copia o código fonte
-COPY src src
-
-# Compila e gera o .jar
-RUN ./mvnw clean package -DskipTests
-
-# Etapa 2: Execução
-FROM eclipse-temurin:17-jdk-jammy
-
+# Stage 2: runtime
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-
-# Copia o .jar gerado da etapa de build
 COPY --from=build /app/target/*.jar app.jar
-
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -111,6 +111,14 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.mailjet</groupId>
+            <artifactId>mailjet-client</artifactId>
+            <version>5.2.1</version>
+        </dependency>
+
+
+
     </dependencies>
 
 	<build>
