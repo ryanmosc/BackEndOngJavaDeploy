@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://189.90.130.200:3306/voluntariosdasau_base_de_dados?useSSL=false&serverTimezone=UTC}
-    username: ${DB_USERNAME:voluntariosdasau_root}
-    password: ${DB_PASSWORD:}a*I$lRK+bZE{VW[}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -12,13 +12,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: ${MAIL_HOST:mail.voluntariosdasaude.com.br}
-    port: ${MAIL_PORT:465}
-    username: ${MAIL_USERNAME:contato@voluntariosdasaude.com.br}
-    password: ${MAIL_PASSWORD:1QMzQTK]Od#5*L!7}
+    host: mail.voluntariosdasaude.com.br
+    port: 465
+    username: contato@voluntariosdasaude.com.br
+    password: "1QMzQTK]Od#5*L!7"
     properties:
       mail:
         smtp:
@@ -26,22 +26,23 @@ spring:
           ssl:
             enable: true
     default-encoding: UTF-8
-    default-from: ${MAIL_DEFAULT_FROM:contato@voluntariosdasaude.com.br}
+    default-from: contato@voluntariosdasaude.com.br
 
 server:
-  port: ${PORT:8080}
+  port: 8080
 
 app:
   upload:
-    dir: ${UPLOAD_DIR:C:/temp/uploads/eventosImages}
-  base-url: ${BASE_URL:https://voluntariosdasaude.com.br/}
+    dir: C:/temp/uploads/eventosImages
+
+  base-url: https://voluntariosdasaude.com.br/
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:dzlkeuso1}
-  api-key: ${CLOUDINARY_API_KEY:293269619759282}
-  api-secret: ${CLOUDINARY_API_SECRET:_6Me7sxz48aSIlEGeVy58UetSMU}
+  cloud_name: dzlkeuso1
+  api_key: 293269619759282
+  api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
 
 api:
   security:
     token:
-      secret: ${JWT_SECRET:43f9e12b8a6c447bb24a9b83d42c8839}
+      secret: 43f9e12b8a6c447bb24a9b83d42c8839
