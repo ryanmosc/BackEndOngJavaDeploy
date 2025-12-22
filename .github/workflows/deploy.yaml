@@ -19,10 +19,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Debug secrets (não imprime valor)
-        run: |
-          echo "USERNAME SET? ${{ secrets.DOCKERHUB_USERNAME != '' }}"
-          echo "TOKEN SET? ${{ secrets.DOCKERHUB_TOKEN != '' }}"
 
 
       - name: Build e Push da imagem
