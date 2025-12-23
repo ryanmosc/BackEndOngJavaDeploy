@@ -3,45 +3,46 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_DDL_AUTO:update}
-    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        format_sql: ${SPRING_JPA_FORMAT_SQL:true}
-        dialect: ${SPRING_JPA_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT:465}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    host: mail.voluntariosdasaude.com.br
+    port: 465
+    username: contato@voluntariosdasaude.com.br
+    password: "1QMzQTK]Od#5*L!7"
     properties:
       mail:
         smtp:
-          auth: ${MAIL_SMTP_AUTH:true}
+          auth: true
           ssl:
-            enable: ${MAIL_SMTP_SSL_ENABLE:true}
+            enable: true
     default-encoding: UTF-8
-    default-from: ${MAIL_DEFAULT_FROM}
+    default-from: contato@voluntariosdasaude.com.br
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 app:
   upload:
-    dir: ${APP_UPLOAD_DIR}
-  base-url: ${APP_BASE_URL}
+    dir: C:/temp/uploads/eventosImages
+
+  base-url: https://voluntariosdasaude.com.br/
 
 cloudinary:
-  cloud_name: ${CLOUDINARY_CLOUD_NAME}
-  api_key: ${CLOUDINARY_API_KEY}
-  api_secret: ${CLOUDINARY_API_SECRET}
+  cloud_name: dzlkeuso1
+  api_key: 293269619759282
+  api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
 
 api:
   security:
     token:
-      secret: ${API_SECURITY_TOKEN_SECRET}
+      secret: 43f9e12b8a6c447bb24a9b83d42c8839
