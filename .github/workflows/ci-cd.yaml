@@ -15,8 +15,8 @@ jobs:
       - name: Login No DockerHub
         uses: docker/login-action@v3
         with:
-        username: ${{ secrests.DOCKERHUB_USERNAME }}
-        password: ${{ secrests.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name:  Build e Push da imagem para o docker DockerHub
         uses: docker/build-push-action@v5
@@ -30,11 +30,11 @@ jobs:
       - name: Deploy na vps
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrests.VPS_HOST }}
-          username: ${{ secrests.VPS_USER }}
-          key: ${{ secrests.VPS_SSH_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/backend
             docker compose down -v
             docker compose pull
-            dokcer compose up -d
+            docker compose up -d
