@@ -21,7 +21,7 @@ public class AtualizacoesController {
 
     @Value("${app.upload.dir}")
     private String uploadDir;
-//Adicionar mais logs
+//Adicionar mais logs e fetures
     public AtualizacoesController(AtualizacoesService service) {
         this.service = service;
         logger.debug("AtualizacoesController initialized");
