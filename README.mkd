@@ -1,0 +1,308 @@
+
+# 🩺 Voluntários da Saúde — Backend Java (Spring Boot 3)
+
+> 🚀 **Projeto em produção**, com usuários reais, desenvolvido para uma ONG e atualmente em uso.
+
+Este é o backend oficial desenvolvido para a ONG **Voluntários da Saúde**, criado com foco em **segurança**, **boas práticas REST**, **arquitetura limpa**, **autenticação JWT**, **upload de imagens**, **painel administrativo**, **envio de e-mails** e **integração com Cloudinary**.
+
+O sistema atende voluntários, doadores e a equipe administrativa da ONG em um ambiente **real de produção**.
+
+---
+
+## ✅ Status do Projeto
+
+- 🟢 Em produção
+- 👥 Usuários reais
+- 🌐 Domínios ativos
+
+---
+
+## 🌐 Infraestrutura de Produção
+
+### Resumo da Infraestrutura
+
+- VPS Ubuntu 22.04 LTS
+- Docker + Docker Compose
+- Nginx (Proxy Reverso)
+- HTTPS com Let's Encrypt (Certbot)
+- Firewall UFW
+- Cloudflare (DNS e segurança)
+
+### VPS Ubuntu 22.04 (Ambiente de Produção)
+
+A aplicação opera em uma infraestrutura dedicada composta por:
+
+- Ubuntu Server 22.04 LTS
+- Docker Engine + Docker Compose
+- Nginx como Proxy Reverso
+- Certificados SSL com renovação automática
+- Firewall UFW configurado
+- Cloudflare como camada adicional de segurança e DNS
+
+### Backend (Este Repositório)
+
+- Container Docker dedicado
+- Porta interna: `8080`
+- Exposto via Nginx com HTTPS:
+  - https://api.voluntariosdasaude.com.br
+- Restart automático configurado
+- Logs gerenciados via Docker e journald
+
+### Frontend
+
+- Container Docker dedicado
+- Porta interna: `8081`
+- Exposto publicamente em:
+  - https://voluntariosdasaude.com.br
+- Compartilha o mesmo proxy reverso do backend
+
+### Proxy Reverso (Nginx)
+
+Funcionalidades implementadas:
+
+- Roteamento para backend e frontend
+- Redirecionamento forçado para HTTPS
+- CORS controlado e seguro
+- Renovação automática de certificados SSL
+- Rate limit para rotas sensíveis
+
+### Cloudflare
+
+Utilizado para:
+
+- Gerenciamento de DNS
+- Camada adicional de segurança
+- Otimização de tráfego
+- Proteção contra bots e ataques
+
+> **Obs.:** A API opera com proxy desativado no Cloudflare para evitar interferências.
+
+---
+
+## 📦 Tecnologias Utilizadas
+
+- **Java 17**
+- **Spring Boot 3.5+**
+  - Spring Web
+  - Spring Security (JWT)
+  - Spring Data JPA
+  - Spring Validation / Jakarta Validation
+- **PostgreSQL / MySQL**
+- **Hibernate**
+- **Maven**
+- **Docker & Docker Compose**
+- **Nginx**
+- **Cloudinary** (upload de imagens)
+- **JavaMailSender** (envio de e-mails)
+- **SLF4J** (logging estruturado)
+- Autenticação JWT com roles `ADMIN` e `USER`
+
+---
+
+## 🧠 Objetivo do Projeto
+
+Criar um backend completo para:
+
+- Gerenciar **Eventos** (CRUD + upload de imagens)
+- Gerenciar **Atualizações**
+- Receber formulários públicos:
+  - Seja Voluntário
+  - Doação Mensal
+  - Fale Conosco
+- Sistema administrativo com permissão **ADMIN**
+- Autenticação JWT segura
+- Painel administrativo para resposta de formulários via e-mail
+
+O projeto atende um volume significativo de visitantes mensais da ONG.
+
+---
+
+## 🔐 Segurança
+
+- Autenticação via JWT
+- Criptografia de senhas com BCrypt
+- CORS restrito a domínios oficiais
+- HTTPS forçado
+- Rate limit para rotas administrativas
+- Sanitização de entradas
+- Boas práticas de API Hardening
+
+### Claims JWT
+
+- `sub` → login do usuário
+- `role` → ADMIN / USER
+
+A área administrativa aceita apenas usuários com **ROLE_ADMIN**.
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── main/
+│   ├── java/com/ong/api_backend/
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── infra/security/
+│   │   ├── exceptions/
+│   │   ├── repository/
+│   │   ├── storage/
+│   │   ├── model/
+│   │   └── model/user/
+│   └── resources/
+│       ├── application.yml
+│       └── static/uploads/
+└── test/
+```
+
+Arquitetura orientada a:
+
+- Controllers (apresentação)
+- Services (regras de negócio)
+- Repositories (acesso a dados)
+- Models / DTOs
+- Security (filtros, providers e autenticação)
+
+---
+
+## 🚀 Funcionalidades Principais
+
+- Cadastro e autenticação de administradores
+- Gestão de voluntários e doadores
+- Gestão de conteúdos institucionais
+- Gestão de Eventos e Atualizações
+- Recebimento de formulários públicos
+- Envio de e-mails automáticos
+- Upload de imagens (Cloudinary)
+- Painel administrativo integrado
+- API REST documentada
+
+---
+
+## 🔄 Endpoints Implementados
+
+### 🔐 Autenticação
+| Método | Rota | Descrição |
+|------|------|-----------|
+| POST | `/auth/login` | Autentica e retorna JWT |
+| POST | `/auth/register` | Cria novo usuário ADMIN |
+
+### 📍 Eventos (ADMIN)
+| Método | Rota |
+|------|------|
+| GET | `/api/gerencia/eventos` |
+| POST | `/api/gerencia/eventos` |
+| PUT | `/api/gerencia/eventos/{id}` |
+| DELETE | `/api/gerencia/eventos/{id}` |
+
+### 🔁 Atualizações (ADMIN)
+| Método | Rota |
+|------|------|
+| GET | `/api/gerencia/atualizacoes` |
+| POST | `/api/gerencia/atualizacoes` |
+| PUT | `/api/gerencia/atualizacoes/{id}` |
+| DELETE | `/api/gerencia/atualizacoes/{id}` |
+
+### 🌐 Formulários Públicos
+| Método | Rota |
+|------|------|
+| POST | `/api/seja_voluntario` |
+| POST | `/api/fale_conosco` |
+| POST | `/api/doacao_mensal` |
+
+### 📨 Painel Administrativo — E-mail
+| Método | Rota |
+|------|------|
+| GET | `/api/dashboard/formularios` |
+| POST | `/api/dashboard/email` |
+
+---
+
+## 🖼 Upload de Imagens (Cloudinary)
+
+Uploads automáticos para:
+
+- `eventosImages/`
+- `atualizacoesImages/`
+
+A API persiste o `secure_url` retornado pelo Cloudinary.
+
+---
+
+## 🐳 Deploy com Docker
+
+### Build da imagem
+```bash
+docker build -t voluntarios-backend .
+```
+
+### Execução
+```bash
+docker run -d -p 8080:8080 --restart always voluntarios-backend
+```
+
+### Docker Compose
+```bash
+docker compose up -d
+```
+
+---
+
+## 🔧 Variáveis de Ambiente
+
+```env
+DB_HOST=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+JWT_SECRET=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+MAIL_HOST=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+```
+
+---
+
+## 📚 Principais Aprendizados
+
+- Deploy e manutenção de aplicações em produção
+- Dockerização de backend e frontend
+- Configuração de Nginx como proxy reverso
+- Segurança de APIs REST
+- Gerenciamento de servidores Linux
+- Monitoramento básico e análise de logs
+- Comunicação com stakeholders reais
+
+---
+
+## 🛠 Boas Práticas Implementadas
+
+- Uso de DTOs
+- Tratamento global de exceções
+- Versionamento de API
+- Respostas padronizadas
+- Logs estruturados
+- Validações no backend e modelo
+- Arquitetura limpa
+
+---
+
+## 📄 Licença
+
+Uso exclusivo para a ONG Voluntários da Saúde e colaboradores autorizados.
+
+---
+
+## 👨‍💻 Desenvolvedor
+
+**Ryan Moscardini**
+Desenvolvedor Java & DevOps
+Estudante de Análise e Desenvolvimento de Sistemas — FATEC Franca
+Líder do backend e infraestrutura do projeto Voluntários da Saúde
+
+🔗 LinkedIn | GitHub
