@@ -1,5 +1,5 @@
 
-# 🩺 Voluntários da Saúde — Backend Java (Spring Boot 3)
+# 🩺 Voluntários da Saúde — Backend Java (Spring Boot 3) Obs: Essa versão não irá funcionar a pipiline, pois está sem os dados sensiveis 
 
 > 🚀 **Projeto em produção**, com usuários reais, desenvolvido para uma ONG e atualmente em uso.
 
