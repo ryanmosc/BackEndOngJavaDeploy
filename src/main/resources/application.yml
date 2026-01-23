@@ -17,8 +17,8 @@ spring:
   mail:
     host: mail.voluntariosdasaude.com.br
     port: 465
-    username: contato@voluntariosdasaude.com.br
-    password: "1QMzQTK]Od#5*L!7"
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -26,10 +26,10 @@ spring:
           ssl:
             enable: true
     default-encoding: UTF-8
-    default-from: contato@voluntariosdasaude.com.br
+    default-from: ${SPRING_MAIL_USERNAME}
 
 server:
-  port: 8080
+  port: ${SPRING_WEB_SERVER_PORT}
 
 app:
   upload:
@@ -38,11 +38,11 @@ app:
   base-url: https://voluntariosdasaude.com.br/
 
 cloudinary:
-  cloud_name: dzlkeuso1
-  api_key: 293269619759282
-  api_secret: _6Me7sxz48aSIlEGeVy58UetSMU
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
 
 api:
   security:
     token:
-      secret: 43f9e12b8a6c447bb24a9b83d42c8839
+      secret: ${SPRING_JWT_TOKEN}
