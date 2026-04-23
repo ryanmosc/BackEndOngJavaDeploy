@@ -7,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_DDL_AUTO}
     show-sql: true
     properties:
       hibernate:
@@ -15,10 +15,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: mail.voluntariosdasaude.com.br
-    port: 465
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -26,16 +26,12 @@ spring:
           ssl:
             enable: true
     default-encoding: UTF-8
-    default-from: ${SPRING_MAIL_USERNAME}
-
-server:
-  port: ${SPRING_WEB_SERVER_PORT}
+    default-from: ${MAIL_USERNAME}
 
 app:
   upload:
-    dir: C:/temp/uploads/eventosImages
-
-  base-url: https://voluntariosdasaude.com.br/
+    dir: ${APP_UPLOAD_DIR}
+  base-url: ${APP_BASE_URL}
 
 cloudinary:
   cloud_name: ${CLOUDINARY_CLOUD_NAME}
@@ -45,4 +41,4 @@ cloudinary:
 api:
   security:
     token:
-      secret: ${SPRING_JWT_TOKEN}
+      secret: ${JWT_SECRET}
