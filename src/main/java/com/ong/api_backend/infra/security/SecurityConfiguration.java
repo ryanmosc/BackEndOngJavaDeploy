@@ -33,7 +33,8 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login" ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/fale_conosco", "/api/seja_voluntario", "/api/doacao_mensal").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/gerencia/eventos", "/api/gerencia/atualizacoes").permitAll()
                         .requestMatchers("/api/gerencia/eventos/**", "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
