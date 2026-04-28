@@ -18,7 +18,7 @@ public class FaleConosco {
 
     @Column(name = "nome_completo")
     @NotEmpty(message = "Nome completo é obrigatório")
-    @Size(min = 2, max = 100, message = "Nome deve ter entre 2 e 100 caracteres")
+    @Size( max = 100, message = "Nome deve ter no maximo 100 caracteres")
     private String nomeCompleto;
 
     @Column(name = "email")
@@ -28,6 +28,6 @@ public class FaleConosco {
 
     @Column(name = "mensagem")
     @NotEmpty(message = "Mensagem é obrigatória")
-    @Size(min = 10, max = 500, message = "Mensagem deve ter entre 10 e 500 caracteres")
+    @Size(max = 500, message = "Mensagem deve ter no máximo 500 caracteres")
     private String mensagem;
 }
