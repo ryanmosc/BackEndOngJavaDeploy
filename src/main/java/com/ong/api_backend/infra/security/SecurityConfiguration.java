@@ -39,6 +39,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/gerencia/eventos", "/api/gerencia/atualizacoes").permitAll()
                         .requestMatchers("/api/gerencia/eventos/**", "/api/gerencia/atualizacoes/**").hasRole("ADMIN")
                         .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/transparencia/visualizar").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/transparencia/enviar").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
