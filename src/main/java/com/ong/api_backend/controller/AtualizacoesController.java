@@ -2,6 +2,8 @@ package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.Atualizacoes;
 import com.ong.api_backend.service.AtualizacoesService;
+import com.ong.api_backend.util.IpUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,30 +18,97 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/gerencia/atualizacoes")
 public class AtualizacoesController {
-    private static final Logger logger = LoggerFactory.getLogger(AtualizacoesController.class);
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(AtualizacoesController.class);
+
     private final AtualizacoesService service;
+    private final IpUtil ipUtil;
 
     @Value("${app.upload.dir}")
     private String uploadDir;
-//Adicionar mais logs e fetures
-    public AtualizacoesController(AtualizacoesService service) {
+
+    public AtualizacoesController(
+            AtualizacoesService service,
+            IpUtil ipUtil) {
+
         this.service = service;
+        this.ipUtil = ipUtil;
+
         logger.debug("AtualizacoesController initialized");
     }
 
     @PostMapping
     public ResponseEntity<Atualizacoes> adicionar(
             @RequestParam("texto") String texto,
-            @RequestParam(value = "file-1", required = false) MultipartFile imagem) throws IOException {
-        logger.info("Received request to add new Atualizacoes with texto: {}", texto);
+            @RequestParam(value = "file-1", required = false) MultipartFile imagem,
+            HttpServletRequest request) throws IOException {
+
+        String ip = IpUtil.getClientIp(request);
+
+        logger.info(
+                "[IP: {}] Received request to add new Atualizacoes with texto: {}",
+                ip,
+                texto
+        );
+
         try {
+
+            if (texto == null || texto.trim().isEmpty()) {
+
+                logger.warn(
+                        "[IP: {}] Texto field is empty while creating Atualizacoes",
+                        ip
+                );
+
+                return ResponseEntity.badRequest().build();
+            }
+
+            if (imagem != null) {
+
+                logger.info(
+                        "[IP: {}] Upload image received. Name: {} | Size: {} bytes",
+                        ip,
+                        imagem.getOriginalFilename(),
+                        imagem.getSize()
+                );
+            }
+
             Atualizacoes atualizacoes = new Atualizacoes();
             atualizacoes.setTexto(texto);
+
             Atualizacoes saved = service.salvar(atualizacoes, imagem);
-            logger.info("Atualizacoes saved successfully with ID: {}", saved.getId());
-            return ResponseEntity.status(201).body(saved);
+
+            logger.info(
+                    "[IP: {}] Atualizacoes saved successfully with ID: {}",
+                    ip,
+                    saved.getId()
+            );
+
+            return ResponseEntity
+                    .status(201)
+                    .body(saved);
+
         } catch (IOException e) {
-            logger.error("Error saving Atualizacoes: {}", e.getMessage(), e);
+
+            logger.error(
+                    "[IP: {}] Error saving Atualizacoes: {}",
+                    ip,
+                    e.getMessage(),
+                    e
+            );
+
+            throw e;
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "[IP: {}] Unexpected error saving Atualizacoes: {}",
+                    ip,
+                    e.getMessage(),
+                    e
+            );
+
             throw e;
         }
     }
@@ -48,36 +117,139 @@ public class AtualizacoesController {
     public ResponseEntity<Atualizacoes> atualizar(
             @PathVariable Long id,
             @RequestParam("texto") String texto,
-            @RequestParam(value = "file-1", required = false) MultipartFile imagem) throws IOException {
-        logger.info("Received request to update Atualizacoes with ID: {}", id);
+            @RequestParam(value = "file-1", required = false) MultipartFile imagem,
+            HttpServletRequest request) throws IOException {
+
+        String ip = IpUtil.getClientIp(request);
+
+        logger.info(
+                "[IP: {}] Received request to update Atualizacoes with ID: {}",
+                ip,
+                id
+        );
+
         try {
-            Atualizacoes updated = service.atualizar((long) Math.toIntExact(id), texto, imagem);
-            logger.info("Atualizacoes updated successfully with ID: {}", id);
+
+            if (texto == null || texto.trim().isEmpty()) {
+
+                logger.warn(
+                        "[IP: {}] Texto field is empty while updating Atualizacoes ID: {}",
+                        ip,
+                        id
+                );
+
+                return ResponseEntity.badRequest().build();
+            }
+
+            if (imagem != null) {
+
+                logger.info(
+                        "[IP: {}] New image received for Atualizacoes ID {}. Name: {} | Size: {} bytes",
+                        ip,
+                        id,
+                        imagem.getOriginalFilename(),
+                        imagem.getSize()
+                );
+            }
+
+            Atualizacoes updated = service.atualizar(
+                    (long) Math.toIntExact(id),
+                    texto,
+                    imagem
+            );
+
+            logger.info(
+                    "[IP: {}] Atualizacoes updated successfully with ID: {}",
+                    ip,
+                    id
+            );
+
             return ResponseEntity.ok(updated);
+
         } catch (IOException e) {
-            logger.error("Error updating Atualizacoes with ID {}: {}", id, e.getMessage(), e);
+
+            logger.error(
+                    "[IP: {}] Error updating Atualizacoes with ID {}: {}",
+                    ip,
+                    id,
+                    e.getMessage(),
+                    e
+            );
+
+            throw e;
+
+        } catch (Exception e) {
+
+            logger.error(
+                    "[IP: {}] Unexpected error updating Atualizacoes with ID {}: {}",
+                    ip,
+                    id,
+                    e.getMessage(),
+                    e
+            );
+
             throw e;
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable Long id) throws IOException {
-        logger.info("Received request to delete Atualizacoes with ID: {}", id);
+    public ResponseEntity<String> deletar(
+            @PathVariable Long id,
+            HttpServletRequest request) throws IOException {
+
+        String ip = IpUtil.getClientIp(request);
+
+        logger.info(
+                "[IP: {}] Received request to delete Atualizacoes with ID: {}",
+                ip,
+                id
+        );
+
         try {
+
             service.deletar((long) Math.toIntExact(id));
-            logger.info("Atualizacoes deleted successfully with ID: {}", id);
+
+            logger.info(
+                    "[IP: {}] Atualizacoes deleted successfully with ID: {}",
+                    ip,
+                    id
+            );
+
             return ResponseEntity.ok("Atualização deletada com sucesso");
+
         } catch (Exception e) {
-            logger.error("Error deleting Atualizacoes with ID {}: {}", id, e.getMessage(), e);
+
+            logger.error(
+                    "[IP: {}] Error deleting Atualizacoes with ID {}: {}",
+                    ip,
+                    id,
+                    e.getMessage(),
+                    e
+            );
+
             throw e;
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Atualizacoes>> listarTodos() {
-        logger.info("Received request to list all Atualizacoes");
+    public ResponseEntity<List<Atualizacoes>> listarTodos(
+            HttpServletRequest request) {
+
+        String ip = IpUtil.getClientIp(request);
+
+        logger.info(
+                "[IP: {}] Received request to list all Atualizacoes",
+                ip
+        );
+
         List<Atualizacoes> eventos = service.listarTodos();
-        logger.debug("Returning {} Atualizacoes", eventos.size());
+
+        logger.debug(
+                "[IP: {}] Returning {} Atualizacoes",
+                ip,
+                eventos.size()
+        );
+
         return ResponseEntity.ok(eventos);
     }
 }
