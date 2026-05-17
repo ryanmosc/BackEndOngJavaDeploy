@@ -1,7 +1,10 @@
 package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.Atualizacoes;
+import com.ong.api_backend.model.Logs;
+import com.ong.api_backend.repository.LogsRepository;
 import com.ong.api_backend.service.AtualizacoesService;
+import com.ong.api_backend.service.LogsService;
 import com.ong.api_backend.util.IpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -24,16 +27,18 @@ public class AtualizacoesController {
 
     private final AtualizacoesService service;
     private final IpUtil ipUtil;
+    private final LogsService logsService;
 
     @Value("${app.upload.dir}")
     private String uploadDir;
 
     public AtualizacoesController(
             AtualizacoesService service,
-            IpUtil ipUtil) {
+            IpUtil ipUtil, LogsService logsService) {
 
         this.service = service;
         this.ipUtil = ipUtil;
+        this.logsService = logsService;
 
         logger.debug("AtualizacoesController initialized");
     }
@@ -51,6 +56,7 @@ public class AtualizacoesController {
                 ip,
                 texto
         );
+        logsService.salvarLog(new Logs(ip, ));
 
         try {
 
