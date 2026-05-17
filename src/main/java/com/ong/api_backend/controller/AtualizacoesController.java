@@ -2,46 +2,32 @@ package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.Atualizacoes;
 import com.ong.api_backend.model.Logs;
-import com.ong.api_backend.repository.LogsRepository;
 import com.ong.api_backend.service.AtualizacoesService;
 import com.ong.api_backend.service.LogsService;
 import com.ong.api_backend.util.IpUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/gerencia/atualizacoes")
+@RequiredArgsConstructor
 public class AtualizacoesController {
 
     private static final Logger logger =
             LoggerFactory.getLogger(AtualizacoesController.class);
 
     private final AtualizacoesService service;
-    private final IpUtil ipUtil;
     private final LogsService logsService;
-
-    @Value("${app.upload.dir}")
-    private String uploadDir;
-
-    public AtualizacoesController(
-            AtualizacoesService service,
-            IpUtil ipUtil, LogsService logsService) {
-
-        this.service = service;
-        this.ipUtil = ipUtil;
-        this.logsService = logsService;
-
-        logger.debug("AtualizacoesController initialized");
-    }
 
     @PostMapping
     public ResponseEntity<Atualizacoes> adicionar(
@@ -51,21 +37,17 @@ public class AtualizacoesController {
 
         String ip = IpUtil.getClientIp(request);
 
-        logger.info(
-                "[IP: {}] Received request to add new Atualizacoes with texto: {}",
-                ip,
-                texto
-        );
-        logsService.salvarLog(new Logs(ip, ));
+        logger.info("[IP: {}] Iniciando criação de atualização", ip);
+
+        salvarLog(ip, "Tentativa de criação de atualização");
 
         try {
 
             if (texto == null || texto.trim().isEmpty()) {
 
-                logger.warn(
-                        "[IP: {}] Texto field is empty while creating Atualizacoes",
-                        ip
-                );
+                logger.warn("[IP: {}] Texto vazio ao criar atualização", ip);
+
+                salvarLog(ip, "Falha ao criar atualização: texto vazio");
 
                 return ResponseEntity.badRequest().build();
             }
@@ -73,35 +55,48 @@ public class AtualizacoesController {
             if (imagem != null) {
 
                 logger.info(
-                        "[IP: {}] Upload image received. Name: {} | Size: {} bytes",
+                        "[IP: {}] Upload recebido -> Nome: {} | Tamanho: {} bytes",
                         ip,
                         imagem.getOriginalFilename(),
                         imagem.getSize()
                 );
+
+                salvarLog(
+                        ip,
+                        "Imagem enviada: " + imagem.getOriginalFilename()
+                );
             }
 
-            Atualizacoes atualizacoes = new Atualizacoes();
-            atualizacoes.setTexto(texto);
+            Atualizacoes atualizacao = new Atualizacoes();
+            atualizacao.setTexto(texto);
 
-            Atualizacoes saved = service.salvar(atualizacoes, imagem);
+            Atualizacoes saved = service.salvar(atualizacao, imagem);
 
             logger.info(
-                    "[IP: {}] Atualizacoes saved successfully with ID: {}",
+                    "[IP: {}] Atualização criada com sucesso. ID: {}",
                     ip,
                     saved.getId()
             );
 
-            return ResponseEntity
-                    .status(201)
-                    .body(saved);
+            salvarLog(
+                    ip,
+                    "Atualização criada com sucesso. ID: " + saved.getId()
+            );
+
+            return ResponseEntity.status(201).body(saved);
 
         } catch (IOException e) {
 
             logger.error(
-                    "[IP: {}] Error saving Atualizacoes: {}",
+                    "[IP: {}] Erro de IO ao salvar atualização: {}",
                     ip,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro IO ao criar atualização: " + e.getMessage()
             );
 
             throw e;
@@ -109,10 +104,15 @@ public class AtualizacoesController {
         } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Unexpected error saving Atualizacoes: {}",
+                    "[IP: {}] Erro inesperado ao salvar atualização: {}",
                     ip,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro inesperado ao criar atualização: " + e.getMessage()
             );
 
             throw e;
@@ -129,69 +129,50 @@ public class AtualizacoesController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to update Atualizacoes with ID: {}",
+                "[IP: {}] Iniciando atualização da atualização ID {}",
                 ip,
                 id
         );
 
+        salvarLog(
+                ip,
+                "Tentativa de atualização da atualização ID " + id
+        );
+
         try {
 
-            if (texto == null || texto.trim().isEmpty()) {
-
-                logger.warn(
-                        "[IP: {}] Texto field is empty while updating Atualizacoes ID: {}",
-                        ip,
-                        id
-                );
-
-                return ResponseEntity.badRequest().build();
-            }
-
-            if (imagem != null) {
-
-                logger.info(
-                        "[IP: {}] New image received for Atualizacoes ID {}. Name: {} | Size: {} bytes",
-                        ip,
-                        id,
-                        imagem.getOriginalFilename(),
-                        imagem.getSize()
-                );
-            }
-
             Atualizacoes updated = service.atualizar(
-                    (long) Math.toIntExact(id),
+                    id,
                     texto,
                     imagem
             );
 
             logger.info(
-                    "[IP: {}] Atualizacoes updated successfully with ID: {}",
+                    "[IP: {}] Atualização editada com sucesso. ID: {}",
                     ip,
                     id
             );
 
+            salvarLog(
+                    ip,
+                    "Atualização editada com sucesso. ID: " + id
+            );
+
             return ResponseEntity.ok(updated);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Error updating Atualizacoes with ID {}: {}",
+                    "[IP: {}] Erro ao atualizar ID {}: {}",
                     ip,
                     id,
                     e.getMessage(),
                     e
             );
 
-            throw e;
-
-        } catch (Exception e) {
-
-            logger.error(
-                    "[IP: {}] Unexpected error updating Atualizacoes with ID {}: {}",
+            salvarLog(
                     ip,
-                    id,
-                    e.getMessage(),
-                    e
+                    "Erro ao atualizar ID " + id + ": " + e.getMessage()
             );
 
             throw e;
@@ -206,19 +187,29 @@ public class AtualizacoesController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to delete Atualizacoes with ID: {}",
+                "[IP: {}] Solicitação de exclusão da atualização ID {}",
                 ip,
                 id
         );
 
+        salvarLog(
+                ip,
+                "Tentativa de exclusão da atualização ID " + id
+        );
+
         try {
 
-            service.deletar((long) Math.toIntExact(id));
+            service.deletar(id);
 
             logger.info(
-                    "[IP: {}] Atualizacoes deleted successfully with ID: {}",
+                    "[IP: {}] Atualização removida com sucesso. ID: {}",
                     ip,
                     id
+            );
+
+            salvarLog(
+                    ip,
+                    "Atualização removida com sucesso. ID: " + id
             );
 
             return ResponseEntity.ok("Atualização deletada com sucesso");
@@ -226,11 +217,16 @@ public class AtualizacoesController {
         } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Error deleting Atualizacoes with ID {}: {}",
+                    "[IP: {}] Erro ao deletar ID {}: {}",
                     ip,
                     id,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro ao deletar ID " + id + ": " + e.getMessage()
             );
 
             throw e;
@@ -243,19 +239,29 @@ public class AtualizacoesController {
 
         String ip = IpUtil.getClientIp(request);
 
+        logger.info("[IP: {}] Listando todas as atualizações", ip);
+
+        salvarLog(ip, "Listagem de atualizações");
+
+        List<Atualizacoes> lista = service.listarTodos();
+
         logger.info(
-                "[IP: {}] Received request to list all Atualizacoes",
-                ip
-        );
-
-        List<Atualizacoes> eventos = service.listarTodos();
-
-        logger.debug(
-                "[IP: {}] Returning {} Atualizacoes",
+                "[IP: {}] {} atualizações encontradas",
                 ip,
-                eventos.size()
+                lista.size()
         );
 
-        return ResponseEntity.ok(eventos);
+        return ResponseEntity.ok(lista);
+    }
+
+    private void salvarLog(String ip, String mensagem) {
+
+        Logs log = new Logs();
+
+        log.setIp_requisicao(ip);
+        log.setLog(mensagem);
+        log.setLocalDateTime(LocalDateTime.now());
+
+        logsService.salvarLog(log);
     }
 }

@@ -2,46 +2,33 @@ package com.ong.api_backend.controller;
 
 import com.ong.api_backend.exceptions.DadosInvalidosException;
 import com.ong.api_backend.model.FaleConosco;
+import com.ong.api_backend.model.Logs;
 import com.ong.api_backend.service.EmailService;
 import com.ong.api_backend.service.FaleConoscoService;
+import com.ong.api_backend.service.LogsService;
 import com.ong.api_backend.util.IpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/fale_conosco")
+@RequiredArgsConstructor
 public class FaleConoscoController {
 
     private static final Logger logger =
             LoggerFactory.getLogger(FaleConoscoController.class);
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private FaleConoscoService faleConoscoService;
-
-    @Autowired
-    private IpUtil ipUtil;
-
-    public FaleConoscoController(
-            FaleConoscoService faleConoscoService,
-            EmailService emailService,
-            IpUtil ipUtil) {
-
-        this.faleConoscoService = faleConoscoService;
-        this.emailService = emailService;
-        this.ipUtil = ipUtil;
-
-        logger.debug("FaleConoscoController initialized");
-    }
+    private final EmailService emailService;
+    private final FaleConoscoService faleConoscoService;
+    private final LogsService logsService;
 
     @PostMapping
     public ResponseEntity<String> saveAll(
@@ -51,24 +38,42 @@ public class FaleConoscoController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to save FaleConosco message",
+                "[IP: {}] Iniciando recebimento de mensagem do formulário de contato",
                 ip
+        );
+
+        salvarLog(
+                ip,
+                "Tentativa de envio de mensagem no formulário Fale Conosco"
         );
 
         try {
 
             logger.info(
-                    "[IP: {}] Contact form received | Nome: {} | Email: {}",
+                    "[IP: {}] Formulário recebido | Nome: {} | Email: {}",
                     ip,
                     faleConosco.getNomeCompleto(),
                     faleConosco.getEmail()
             );
 
+            salvarLog(
+                    ip,
+                    "Formulário recebido de "
+                            + faleConosco.getNomeCompleto()
+                            + " | Email: "
+                            + faleConosco.getEmail()
+            );
+
             faleConoscoService.saveAllService(faleConosco);
 
             logger.info(
-                    "[IP: {}] FaleConosco message saved successfully",
+                    "[IP: {}] Mensagem salva com sucesso",
                     ip
+            );
+
+            salvarLog(
+                    ip,
+                    "Mensagem Fale Conosco salva com sucesso"
             );
 
             return ResponseEntity.ok(
@@ -78,10 +83,16 @@ public class FaleConoscoController {
         } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Error saving FaleConosco message: {}",
+                    "[IP: {}] Erro ao salvar mensagem Fale Conosco: {}",
                     ip,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro ao salvar mensagem Fale Conosco: "
+                            + e.getMessage()
             );
 
             throw new DadosInvalidosException(
@@ -97,19 +108,35 @@ public class FaleConoscoController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to list all contact messages",
+                "[IP: {}] Listando todas as mensagens de contato",
                 ip
+        );
+
+        salvarLog(
+                ip,
+                "Listagem de mensagens Fale Conosco"
         );
 
         List<FaleConosco> lista =
                 faleConoscoService.listarTodosFale();
 
-        logger.debug(
-                "[IP: {}] Returning {} contact messages",
+        logger.info(
+                "[IP: {}] {} mensagens encontradas",
                 ip,
                 lista.size()
         );
 
         return ResponseEntity.ok(lista);
+    }
+
+    private void salvarLog(String ip, String mensagem) {
+
+        Logs log = new Logs();
+
+        log.setIp_requisicao(ip);
+        log.setLog(mensagem);
+        log.setLocalDateTime(LocalDateTime.now());
+
+        logsService.salvarLog(log);
     }
 }

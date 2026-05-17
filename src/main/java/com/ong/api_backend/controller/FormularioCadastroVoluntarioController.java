@@ -1,48 +1,35 @@
 package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.FormularioCadastroVoluntario;
+import com.ong.api_backend.model.Logs;
 import com.ong.api_backend.service.EmailService;
 import com.ong.api_backend.service.FormularioCadastroVoluntarioService;
+import com.ong.api_backend.service.LogsService;
 import com.ong.api_backend.util.IpUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/seja_voluntario")
+@RequiredArgsConstructor
 public class FormularioCadastroVoluntarioController {
 
     private static final Logger logger =
             LoggerFactory.getLogger(FormularioCadastroVoluntarioController.class);
 
-    @Autowired
-    private FormularioCadastroVoluntarioService formularioCadastroVoluntarioService;
+    private final FormularioCadastroVoluntarioService
+            formularioCadastroVoluntarioService;
 
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private IpUtil ipUtil;
-
-    public FormularioCadastroVoluntarioController(
-            FormularioCadastroVoluntarioService formularioCadastroVoluntarioService,
-            EmailService emailService,
-            IpUtil ipUtil) {
-
-        this.formularioCadastroVoluntarioService =
-                formularioCadastroVoluntarioService;
-
-        this.emailService = emailService;
-        this.ipUtil = ipUtil;
-
-        logger.debug("FormularioCadastroVoluntarioController initialized");
-    }
+    private final EmailService emailService;
+    private final LogsService logsService;
 
     @PostMapping
     public ResponseEntity<String> saveAll(
@@ -52,17 +39,30 @@ public class FormularioCadastroVoluntarioController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to save FormularioCadastroVoluntario",
+                "[IP: {}] Iniciando recebimento de cadastro de voluntário",
                 ip
+        );
+
+        salvarLog(
+                ip,
+                "Tentativa de cadastro de voluntário"
         );
 
         try {
 
             logger.info(
-                    "[IP: {}] Volunteer form data received | Nome: {} | Email: {}",
+                    "[IP: {}] Dados recebidos | Nome: {} | Email: {}",
                     ip,
                     formularioCadastroVoluntario.getNome_completo(),
                     formularioCadastroVoluntario.getE_mail()
+            );
+
+            salvarLog(
+                    ip,
+                    "Cadastro recebido de "
+                            + formularioCadastroVoluntario.getNome_completo()
+                            + " | Email: "
+                            + formularioCadastroVoluntario.getE_mail()
             );
 
             formularioCadastroVoluntarioService
@@ -71,8 +71,13 @@ public class FormularioCadastroVoluntarioController {
                     );
 
             logger.info(
-                    "[IP: {}] FormularioCadastroVoluntario saved successfully",
+                    "[IP: {}] Cadastro de voluntário salvo com sucesso",
                     ip
+            );
+
+            salvarLog(
+                    ip,
+                    "Cadastro de voluntário salvo com sucesso"
             );
 
             return ResponseEntity.ok(
@@ -82,10 +87,16 @@ public class FormularioCadastroVoluntarioController {
         } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Error saving FormularioCadastroVoluntario: {}",
+                    "[IP: {}] Erro ao salvar cadastro de voluntário: {}",
                     ip,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro ao salvar cadastro de voluntário: "
+                            + e.getMessage()
             );
 
             return ResponseEntity
@@ -101,19 +112,35 @@ public class FormularioCadastroVoluntarioController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to list all volunteer registrations",
+                "[IP: {}] Listando todos os cadastros de voluntários",
                 ip
+        );
+
+        salvarLog(
+                ip,
+                "Listagem de cadastros de voluntários"
         );
 
         List<FormularioCadastroVoluntario> lista =
                 formularioCadastroVoluntarioService.listarTodos();
 
-        logger.debug(
-                "[IP: {}] Returning {} volunteer registrations",
+        logger.info(
+                "[IP: {}] {} cadastros encontrados",
                 ip,
                 lista.size()
         );
 
         return ResponseEntity.ok(lista);
+    }
+
+    private void salvarLog(String ip, String mensagem) {
+
+        Logs log = new Logs();
+
+        log.setIp_requisicao(ip);
+        log.setLog(mensagem);
+        log.setLocalDateTime(LocalDateTime.now());
+
+        logsService.salvarLog(log);
     }
 }

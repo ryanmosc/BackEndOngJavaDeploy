@@ -1,25 +1,29 @@
 package com.ong.api_backend.controller;
 
 import com.ong.api_backend.model.EmailDashboardRequest;
+import com.ong.api_backend.model.Logs;
 import com.ong.api_backend.repository.FaleConoscoRepository;
 import com.ong.api_backend.repository.FormularioCadastroVoluntarioRepository;
 import com.ong.api_backend.repository.FormularioDoacaoMensalRepository;
 import com.ong.api_backend.service.EmailService;
+import com.ong.api_backend.service.LogsService;
 import com.ong.api_backend.service.RespostaService;
 import com.ong.api_backend.util.IpUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/api/dashboard")
+@RequiredArgsConstructor
 public class DashboardController {
 
     private static final Logger logger =
@@ -30,26 +34,7 @@ public class DashboardController {
     private final FormularioCadastroVoluntarioRepository formularioCadastroVoluntarioRepository;
     private final FormularioDoacaoMensalRepository formularioDoacaoMensalRepository;
     private final FaleConoscoRepository faleConoscoRepository;
-    private final IpUtil ipUtil;
-
-    @Autowired
-    public DashboardController(
-            EmailService emailService,
-            RespostaService respostaService,
-            FormularioCadastroVoluntarioRepository formularioCadastroVoluntarioRepository,
-            FormularioDoacaoMensalRepository formularioDoacaoMensalRepository,
-            FaleConoscoRepository faleConoscoRepository,
-            IpUtil ipUtil) {
-
-        this.emailService = emailService;
-        this.faleConoscoRepository = faleConoscoRepository;
-        this.formularioDoacaoMensalRepository = formularioDoacaoMensalRepository;
-        this.formularioCadastroVoluntarioRepository = formularioCadastroVoluntarioRepository;
-        this.respostaService = respostaService;
-        this.ipUtil = ipUtil;
-
-        logger.debug("DashboardController initialized");
-    }
+    private final LogsService logsService;
 
     @GetMapping("/formularios")
     public ResponseEntity<?> listarTodosForms(
@@ -58,8 +43,13 @@ public class DashboardController {
         String ip = IpUtil.getClientIp(request);
 
         logger.info(
-                "[IP: {}] Received request to list all dashboard forms",
+                "[IP: {}] Iniciando carregamento dos formulários do dashboard",
                 ip
+        );
+
+        salvarLog(
+                ip,
+                "Acesso ao dashboard de formulários"
         );
 
         try {
@@ -82,13 +72,18 @@ public class DashboardController {
             );
 
             logger.info(
-                    "[IP: {}] Dashboard forms loaded successfully",
+                    "[IP: {}] Formulários carregados com sucesso",
                     ip
             );
 
             logger.debug(
-                    "[IP: {}] Dashboard response contains volunteer, donation and contact form data",
+                    "[IP: {}] Dashboard retornado com dados de voluntários, doações e fale conosco",
                     ip
+            );
+
+            salvarLog(
+                    ip,
+                    "Dashboard carregado com sucesso"
             );
 
             return ResponseEntity.ok(resposta);
@@ -96,10 +91,15 @@ public class DashboardController {
         } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Error loading dashboard forms: {}",
+                    "[IP: {}] Erro ao carregar formulários do dashboard: {}",
                     ip,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro ao carregar dashboard: " + e.getMessage()
             );
 
             return ResponseEntity
@@ -116,14 +116,19 @@ public class DashboardController {
         String ip = IpUtil.getClientIp(httpRequest);
 
         logger.info(
-                "[IP: {}] Received request to send dashboard email response",
+                "[IP: {}] Iniciando envio de resposta por email",
                 ip
+        );
+
+        salvarLog(
+                ip,
+                "Tentativa de envio de email para " + request.email()
         );
 
         try {
 
             logger.info(
-                    "[IP: {}] Sending email response to {} | Subject: {}",
+                    "[IP: {}] Enviando email para {} | Assunto: {}",
                     ip,
                     request.email(),
                     request.assunto()
@@ -136,9 +141,14 @@ public class DashboardController {
             );
 
             logger.info(
-                    "[IP: {}] Email sent successfully to {}",
+                    "[IP: {}] Email enviado com sucesso para {}",
                     ip,
                     request.email()
+            );
+
+            salvarLog(
+                    ip,
+                    "Email enviado com sucesso para " + request.email()
             );
 
             respostaService.registrar(
@@ -150,10 +160,15 @@ public class DashboardController {
             );
 
             logger.info(
-                    "[IP: {}] Email response registered successfully | Form: {} | Recipient: {}",
+                    "[IP: {}] Resposta registrada com sucesso | Formulário: {} | Destinatário: {}",
                     ip,
                     request.nomeFormulario(),
                     request.email()
+            );
+
+            salvarLog(
+                    ip,
+                    "Resposta registrada no sistema para " + request.email()
             );
 
             return ResponseEntity.ok(
@@ -163,15 +178,34 @@ public class DashboardController {
         } catch (Exception e) {
 
             logger.error(
-                    "[IP: {}] Error sending dashboard email response: {}",
+                    "[IP: {}] Erro ao enviar resposta de email: {}",
                     ip,
                     e.getMessage(),
                     e
+            );
+
+            salvarLog(
+                    ip,
+                    "Erro ao enviar email para "
+                            + request.email()
+                            + ": "
+                            + e.getMessage()
             );
 
             return ResponseEntity
                     .internalServerError()
                     .body("Erro ao enviar email");
         }
+    }
+
+    private void salvarLog(String ip, String mensagem) {
+
+        Logs log = new Logs();
+
+        log.setIp_requisicao(ip);
+        log.setLog(mensagem);
+        log.setLocalDateTime(LocalDateTime.now());
+
+        logsService.salvarLog(log);
     }
 }
