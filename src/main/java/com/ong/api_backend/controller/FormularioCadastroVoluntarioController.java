@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -25,82 +26,47 @@ public class FormularioCadastroVoluntarioController {
     private static final Logger logger =
             LoggerFactory.getLogger(FormularioCadastroVoluntarioController.class);
 
-    private final FormularioCadastroVoluntarioService
-            formularioCadastroVoluntarioService;
-
+    private final FormularioCadastroVoluntarioService formularioCadastroVoluntarioService;
     private final EmailService emailService;
     private final LogsService logsService;
 
     @PostMapping
     public ResponseEntity<String> saveAll(
-            @RequestBody @Valid FormularioCadastroVoluntario formularioCadastroVoluntario,
+            @RequestBody @Valid FormularioCadastroVoluntario formulario,
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando recebimento de cadastro de voluntário",
-                ip
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "cadastrar_voluntario", "/api/seja_voluntario", request
         );
-
-        salvarLog(
-                ip,
-                "Tentativa de cadastro de voluntário"
-        );
+        payload.put("Nome", formulario.getNome_completo());
+        payload.put("Email", formulario.getE_mail());
 
         try {
-
-            logger.info(
-                    "[IP: {}] Dados recebidos | Nome: {} | Email: {}",
-                    ip,
-                    formularioCadastroVoluntario.getNome_completo(),
-                    formularioCadastroVoluntario.getE_mail()
-            );
-
-            salvarLog(
-                    ip,
-                    "Cadastro recebido de "
-                            + formularioCadastroVoluntario.getNome_completo()
-                            + " | Email: "
-                            + formularioCadastroVoluntario.getE_mail()
-            );
-
             formularioCadastroVoluntarioService
-                    .saveAllFormularioCadastroVoluntariosService(
-                            formularioCadastroVoluntario
-                    );
+                    .saveAllFormularioCadastroVoluntariosService(formulario);
 
-            logger.info(
-                    "[IP: {}] Cadastro de voluntário salvo com sucesso",
-                    ip
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Cadastro de voluntário salvo com sucesso"
-            );
+            logger.info("[IP: {}] Cadastro de voluntário salvo com sucesso | Nome: {} | Email: {}",
+                    ip, formulario.getNome_completo(), formulario.getE_mail());
+            logsService.salvarLog(payload);
 
-            return ResponseEntity.ok(
-                    "{\"message\": \"Mensagem enviada com sucesso\"}"
-            );
+            return ResponseEntity.ok("{\"message\": \"Mensagem enviada com sucesso\"}");
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao salvar cadastro de voluntário: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao salvar cadastro de voluntário: "
-                            + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao salvar cadastro de voluntário: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("{\"message\": \"Erro ao enviar mensagem\"}");
         }
     }
@@ -110,37 +76,38 @@ public class FormularioCadastroVoluntarioController {
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Listando todos os cadastros de voluntários",
-                ip
-        );
-
-        salvarLog(
-                ip,
-                "Listagem de cadastros de voluntários"
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "listar_voluntarios", "/api/seja_voluntario", request
         );
 
         List<FormularioCadastroVoluntario> lista =
                 formularioCadastroVoluntarioService.listarTodos();
 
-        logger.info(
-                "[IP: {}] {} cadastros encontrados",
-                ip,
-                lista.size()
-        );
+        payload.put("Status", "Sucesso");
+        payload.put("TotalRegistros", lista.size());
+        payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
+
+        logger.info("[IP: {}] {} cadastros encontrados", ip, lista.size());
+        logsService.salvarLog(payload);
 
         return ResponseEntity.ok(lista);
     }
 
-    private void salvarLog(String ip, String mensagem) {
+    private HashMap<String, Object> construirPayloadBase(
+            String ip,
+            String acao,
+            String endpoint,
+            HttpServletRequest request) {
 
-        Logs log = new Logs();
-
-        log.setIp_requisicao(ip);
-        log.setLog(mensagem);
-        log.setLocalDateTime(LocalDateTime.now());
-
-        logsService.salvarLog(log);
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("Ip", ip);
+        payload.put("Action", acao);
+        payload.put("End-Point", endpoint);
+        payload.put("Method", request.getMethod());
+        payload.put("User-Agent", request.getHeader("User-Agent"));
+        payload.put("Hour", LocalDateTime.now().toString());
+        return payload;
     }
 }

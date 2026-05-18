@@ -5,8 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 @Entity
 @NoArgsConstructor
@@ -20,11 +24,9 @@ public class Logs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ip_requisicao")
-    private String ip_requisicao;
-
-    @Column(name = "log")
-    private String log;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "log", columnDefinition = "json")
+    private HashMap<String, Object> payload;
 
     @Column(name = "data_log")
     private LocalDateTime localDateTime;

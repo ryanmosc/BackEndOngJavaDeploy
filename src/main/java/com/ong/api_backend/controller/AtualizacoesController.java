@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -36,35 +37,31 @@ public class AtualizacoesController {
             HttpServletRequest request) throws IOException {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info("[IP: {}] Iniciando criação de atualização", ip);
-
-        salvarLog(ip, "Tentativa de criação de atualização");
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "criar_atualizacao", "/api/gerencia/atualizacoes", request
+        );
 
         try {
-
             if (texto == null || texto.trim().isEmpty()) {
 
-                logger.warn("[IP: {}] Texto vazio ao criar atualização", ip);
+                payload.put("Status", "Falha");
+                payload.put("Erro", "Texto vazio");
+                payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-                salvarLog(ip, "Falha ao criar atualização: texto vazio");
+                logger.warn("[IP: {}] Texto vazio ao criar atualização", ip);
+                logsService.salvarLog(payload);
 
                 return ResponseEntity.badRequest().build();
             }
 
             if (imagem != null) {
+                payload.put("Imagem-Nome", imagem.getOriginalFilename());
+                payload.put("Imagem-Tamanho", imagem.getSize());
 
-                logger.info(
-                        "[IP: {}] Upload recebido -> Nome: {} | Tamanho: {} bytes",
-                        ip,
-                        imagem.getOriginalFilename(),
-                        imagem.getSize()
-                );
-
-                salvarLog(
-                        ip,
-                        "Imagem enviada: " + imagem.getOriginalFilename()
-                );
+                logger.info("[IP: {}] Upload recebido -> Nome: {} | Tamanho: {} bytes",
+                        ip, imagem.getOriginalFilename(), imagem.getSize());
             }
 
             Atualizacoes atualizacao = new Atualizacoes();
@@ -72,48 +69,34 @@ public class AtualizacoesController {
 
             Atualizacoes saved = service.salvar(atualizacao, imagem);
 
-            logger.info(
-                    "[IP: {}] Atualização criada com sucesso. ID: {}",
-                    ip,
-                    saved.getId()
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("AtualizacaoId", saved.getId());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Atualização criada com sucesso. ID: " + saved.getId()
-            );
+            logger.info("[IP: {}] Atualização criada com sucesso. ID: {}", ip, saved.getId());
+            logsService.salvarLog(payload);
 
             return ResponseEntity.status(201).body(saved);
 
         } catch (IOException e) {
 
-            logger.error(
-                    "[IP: {}] Erro de IO ao salvar atualização: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", "Erro de IO: " + e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro IO ao criar atualização: " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro de IO ao salvar atualização: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
             throw e;
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro inesperado ao salvar atualização: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", "Erro inesperado: " + e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro inesperado ao criar atualização: " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro inesperado ao salvar atualização: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
             throw e;
         }
@@ -127,53 +110,37 @@ public class AtualizacoesController {
             HttpServletRequest request) throws IOException {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando atualização da atualização ID {}",
-                ip,
-                id
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "editar_atualizacao", "/api/gerencia/atualizacoes/" + id, request
         );
+        payload.put("AtualizacaoId", id);
 
-        salvarLog(
-                ip,
-                "Tentativa de atualização da atualização ID " + id
-        );
+        if (imagem != null) {
+            payload.put("Imagem-Nome", imagem.getOriginalFilename());
+            payload.put("Imagem-Tamanho", imagem.getSize());
+        }
 
         try {
+            Atualizacoes updated = service.atualizar(id, texto, imagem);
 
-            Atualizacoes updated = service.atualizar(
-                    id,
-                    texto,
-                    imagem
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            logger.info(
-                    "[IP: {}] Atualização editada com sucesso. ID: {}",
-                    ip,
-                    id
-            );
-
-            salvarLog(
-                    ip,
-                    "Atualização editada com sucesso. ID: " + id
-            );
+            logger.info("[IP: {}] Atualização editada com sucesso. ID: {}", ip, id);
+            logsService.salvarLog(payload);
 
             return ResponseEntity.ok(updated);
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao atualizar ID {}: {}",
-                    ip,
-                    id,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao atualizar ID " + id + ": " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao atualizar ID {}: {}", ip, id, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
             throw e;
         }
@@ -185,49 +152,32 @@ public class AtualizacoesController {
             HttpServletRequest request) throws IOException {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Solicitação de exclusão da atualização ID {}",
-                ip,
-                id
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "deletar_atualizacao", "/api/gerencia/atualizacoes/" + id, request
         );
-
-        salvarLog(
-                ip,
-                "Tentativa de exclusão da atualização ID " + id
-        );
+        payload.put("AtualizacaoId", id);
 
         try {
-
             service.deletar(id);
 
-            logger.info(
-                    "[IP: {}] Atualização removida com sucesso. ID: {}",
-                    ip,
-                    id
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Atualização removida com sucesso. ID: " + id
-            );
+            logger.info("[IP: {}] Atualização removida com sucesso. ID: {}", ip, id);
+            logsService.salvarLog(payload);
 
             return ResponseEntity.ok("Atualização deletada com sucesso");
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao deletar ID {}: {}",
-                    ip,
-                    id,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao deletar ID " + id + ": " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao deletar ID {}: {}", ip, id, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
             throw e;
         }
@@ -238,30 +188,37 @@ public class AtualizacoesController {
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info("[IP: {}] Listando todas as atualizações", ip);
-
-        salvarLog(ip, "Listagem de atualizações");
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "listar_atualizacoes", "/api/gerencia/atualizacoes", request
+        );
 
         List<Atualizacoes> lista = service.listarTodos();
 
-        logger.info(
-                "[IP: {}] {} atualizações encontradas",
-                ip,
-                lista.size()
-        );
+        payload.put("Status", "Sucesso");
+        payload.put("TotalRegistros", lista.size());
+        payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
+
+        logger.info("[IP: {}] {} atualizações encontradas", ip, lista.size());
+        logsService.salvarLog(payload);
 
         return ResponseEntity.ok(lista);
     }
 
-    private void salvarLog(String ip, String mensagem) {
+    private HashMap<String, Object> construirPayloadBase(
+            String ip,
+            String acao,
+            String endpoint,
+            HttpServletRequest request) {
 
-        Logs log = new Logs();
-
-        log.setIp_requisicao(ip);
-        log.setLog(mensagem);
-        log.setLocalDateTime(LocalDateTime.now());
-
-        logsService.salvarLog(log);
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("Ip", ip);
+        payload.put("Action", acao);
+        payload.put("End-Point", endpoint);
+        payload.put("Method", request.getMethod());
+        payload.put("User-Agent", request.getHeader("User-Agent"));
+        payload.put("Hour", LocalDateTime.now().toString());
+        return payload;
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -25,82 +26,47 @@ public class FormularioDoacaoMensalController {
     private static final Logger logger =
             LoggerFactory.getLogger(FormularioDoacaoMensalController.class);
 
-    private final FormularioDoacaoMensalService
-            formularioDoacaoMensalService;
-
+    private final FormularioDoacaoMensalService formularioDoacaoMensalService;
     private final EmailService emailService;
     private final LogsService logsService;
 
     @PostMapping
     public ResponseEntity<String> saveAll(
-            @RequestBody @Valid FormularioDoacaoMensal formularioDoacaoMensal,
+            @RequestBody @Valid FormularioDoacaoMensal formulario,
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando recebimento de formulário de doação mensal",
-                ip
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "cadastrar_doacao_mensal", "/api/doacao_mensal", request
         );
-
-        salvarLog(
-                ip,
-                "Tentativa de cadastro de doação mensal"
-        );
+        payload.put("Nome", formulario.getNomeCompleto());
+        payload.put("Email", formulario.getEmail());
 
         try {
-
-            logger.info(
-                    "[IP: {}] Dados recebidos | Nome: {} | Email: {}",
-                    ip,
-                    formularioDoacaoMensal.getNomeCompleto(),
-                    formularioDoacaoMensal.getEmail()
-            );
-
-            salvarLog(
-                    ip,
-                    "Cadastro de doação mensal recebido de "
-                            + formularioDoacaoMensal.getNomeCompleto()
-                            + " | Email: "
-                            + formularioDoacaoMensal.getEmail()
-            );
-
             formularioDoacaoMensalService
-                    .saveAllFormularioDoacaoMensalService(
-                            formularioDoacaoMensal
-                    );
+                    .saveAllFormularioDoacaoMensalService(formulario);
 
-            logger.info(
-                    "[IP: {}] Cadastro de doação mensal salvo com sucesso",
-                    ip
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Cadastro de doação mensal salvo com sucesso"
-            );
+            logger.info("[IP: {}] Cadastro de doação mensal salvo com sucesso | Nome: {} | Email: {}",
+                    ip, formulario.getNomeCompleto(), formulario.getEmail());
+            logsService.salvarLog(payload);
 
-            return ResponseEntity.ok(
-                    "{\"message\": \"Mensagem enviada com sucesso\"}"
-            );
+            return ResponseEntity.ok("{\"message\": \"Mensagem enviada com sucesso\"}");
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao salvar cadastro de doação mensal: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao salvar cadastro de doação mensal: "
-                            + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao salvar cadastro de doação mensal: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("{\"message\": \"Erro ao enviar mensagem\"}");
         }
     }
@@ -110,37 +76,38 @@ public class FormularioDoacaoMensalController {
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Listando todos os cadastros de doação mensal",
-                ip
-        );
-
-        salvarLog(
-                ip,
-                "Listagem de cadastros de doação mensal"
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "listar_doacoes_mensais", "/api/doacao_mensal", request
         );
 
         List<FormularioDoacaoMensal> lista =
                 formularioDoacaoMensalService.listarTodosMensal();
 
-        logger.info(
-                "[IP: {}] {} cadastros encontrados",
-                ip,
-                lista.size()
-        );
+        payload.put("Status", "Sucesso");
+        payload.put("TotalRegistros", lista.size());
+        payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
+
+        logger.info("[IP: {}] {} cadastros encontrados", ip, lista.size());
+        logsService.salvarLog(payload);
 
         return ResponseEntity.ok(lista);
     }
 
-    private void salvarLog(String ip, String mensagem) {
+    private HashMap<String, Object> construirPayloadBase(
+            String ip,
+            String acao,
+            String endpoint,
+            HttpServletRequest request) {
 
-        Logs log = new Logs();
-
-        log.setIp_requisicao(ip);
-        log.setLog(mensagem);
-        log.setLocalDateTime(LocalDateTime.now());
-
-        logsService.salvarLog(log);
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("Ip", ip);
+        payload.put("Action", acao);
+        payload.put("End-Point", endpoint);
+        payload.put("Method", request.getMethod());
+        payload.put("User-Agent", request.getHeader("User-Agent"));
+        payload.put("Hour", LocalDateTime.now().toString());
+        return payload;
     }
 }

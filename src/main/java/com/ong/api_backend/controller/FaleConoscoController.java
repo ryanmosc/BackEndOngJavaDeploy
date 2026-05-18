@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -36,107 +37,74 @@ public class FaleConoscoController {
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando recebimento de mensagem do formulário de contato",
-                ip
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "enviar_fale_conosco", "/api/fale_conosco", request
         );
-
-        salvarLog(
-                ip,
-                "Tentativa de envio de mensagem no formulário Fale Conosco"
-        );
+        payload.put("Nome", faleConosco.getNomeCompleto());
+        payload.put("Email", faleConosco.getEmail());
 
         try {
-
-            logger.info(
-                    "[IP: {}] Formulário recebido | Nome: {} | Email: {}",
-                    ip,
-                    faleConosco.getNomeCompleto(),
-                    faleConosco.getEmail()
-            );
-
-            salvarLog(
-                    ip,
-                    "Formulário recebido de "
-                            + faleConosco.getNomeCompleto()
-                            + " | Email: "
-                            + faleConosco.getEmail()
-            );
-
             faleConoscoService.saveAllService(faleConosco);
 
-            logger.info(
-                    "[IP: {}] Mensagem salva com sucesso",
-                    ip
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Mensagem Fale Conosco salva com sucesso"
-            );
+            logger.info("[IP: {}] Mensagem Fale Conosco salva com sucesso | Nome: {} | Email: {}",
+                    ip, faleConosco.getNomeCompleto(), faleConosco.getEmail());
+            logsService.salvarLog(payload);
 
-            return ResponseEntity.ok(
-                    "{\"message\": \"Mensagem enviada com sucesso\"}"
-            );
+            return ResponseEntity.ok("{\"message\": \"Mensagem enviada com sucesso\"}");
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao salvar mensagem Fale Conosco: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao salvar mensagem Fale Conosco: "
-                            + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao salvar mensagem Fale Conosco: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            throw new DadosInvalidosException(
-                    "Dados inválidos ou faltantes"
-            );
+            throw new DadosInvalidosException("Dados inválidos ou faltantes");
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<FaleConosco>> listarTodos(
-            HttpServletRequest request) {
+    public ResponseEntity<List<FaleConosco>> listarTodos(HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Listando todas as mensagens de contato",
-                ip
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "listar_fale_conosco", "/api/fale_conosco", request
         );
 
-        salvarLog(
-                ip,
-                "Listagem de mensagens Fale Conosco"
-        );
+        List<FaleConosco> lista = faleConoscoService.listarTodosFale();
 
-        List<FaleConosco> lista =
-                faleConoscoService.listarTodosFale();
+        payload.put("Status", "Sucesso");
+        payload.put("TotalRegistros", lista.size());
+        payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-        logger.info(
-                "[IP: {}] {} mensagens encontradas",
-                ip,
-                lista.size()
-        );
+        logger.info("[IP: {}] {} mensagens encontradas", ip, lista.size());
+        logsService.salvarLog(payload);
 
         return ResponseEntity.ok(lista);
     }
 
-    private void salvarLog(String ip, String mensagem) {
+    private HashMap<String, Object> construirPayloadBase(
+            String ip,
+            String acao,
+            String endpoint,
+            HttpServletRequest request) {
 
-        Logs log = new Logs();
-
-        log.setIp_requisicao(ip);
-        log.setLog(mensagem);
-        log.setLocalDateTime(LocalDateTime.now());
-
-        logsService.salvarLog(log);
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("Ip", ip);
+        payload.put("Action", acao);
+        payload.put("End-Point", endpoint);
+        payload.put("Method", request.getMethod());
+        payload.put("User-Agent", request.getHeader("User-Agent"));
+        payload.put("Hour", LocalDateTime.now().toString());
+        return payload;
     }
 }

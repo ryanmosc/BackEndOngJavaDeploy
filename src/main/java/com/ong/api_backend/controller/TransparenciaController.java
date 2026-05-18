@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/transparencia")
@@ -27,139 +28,92 @@ public class TransparenciaController {
     private final LogsService logsService;
 
     @GetMapping("/visualizar")
-    public ResponseEntity<byte[]> visualizarBalancete(
-            HttpServletRequest request) {
+    public ResponseEntity<byte[]> visualizarBalancete(HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Solicitação para visualizar balancete",
-                ip
-        );
-
-        salvarLog(
-                ip,
-                "Visualização de balancete"
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "visualizar_balancete", "/api/transparencia/visualizar", request
         );
 
         try {
+            ResponseEntity<byte[]> response = fileStorage.visualizarBalancete();
 
-            ResponseEntity<byte[]> response =
-                    fileStorage.visualizarBalancete();
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            logger.info(
-                    "[IP: {}] Balancete visualizado com sucesso",
-                    ip
-            );
-
-            salvarLog(
-                    ip,
-                    "Balancete visualizado com sucesso"
-            );
+            logger.info("[IP: {}] Balancete visualizado com sucesso", ip);
+            logsService.salvarLog(payload);
 
             return response;
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao visualizar balancete: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao visualizar balancete: " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao visualizar balancete: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            return ResponseEntity
-                    .internalServerError()
-                    .build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @PatchMapping(
-            value = "/enviar",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PatchMapping(value = "/enviar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> enviarBalancete(
             @RequestParam("balancete") MultipartFile balancete,
             @RequestParam("texto") String texto,
             HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando envio de balancete",
-                ip
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "enviar_balancete", "/api/transparencia/enviar", request
         );
-
-        salvarLog(
-                ip,
-                "Tentativa de envio de balancete"
-        );
+        payload.put("Arquivo-Nome", balancete.getOriginalFilename());
+        payload.put("Arquivo-Tamanho", balancete.getSize());
 
         try {
+            fileStorage.salvarBalancete(balancete, texto);
 
-            logger.info(
-                    "[IP: {}] Arquivo recebido -> Nome: {} | Tamanho: {} bytes",
-                    ip,
-                    balancete.getOriginalFilename(),
-                    balancete.getSize()
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Arquivo de balancete recebido: "
-                            + balancete.getOriginalFilename()
-            );
-
-            fileStorage.salvarBalancete(
-                    balancete,
-                    texto
-            );
-
-            logger.info(
-                    "[IP: {}] Balancete enviado com sucesso",
-                    ip
-            );
-
-            salvarLog(
-                    ip,
-                    "Balancete enviado com sucesso"
-            );
+            logger.info("[IP: {}] Balancete enviado com sucesso | Arquivo: {} | Tamanho: {} bytes",
+                    ip, balancete.getOriginalFilename(), balancete.getSize());
+            logsService.salvarLog(payload);
 
             return ResponseEntity.noContent().build();
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao enviar balancete: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao enviar balancete: " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao enviar balancete: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            return ResponseEntity
-                    .internalServerError()
-                    .build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    private void salvarLog(String ip, String mensagem) {
+    private HashMap<String, Object> construirPayloadBase(
+            String ip,
+            String acao,
+            String endpoint,
+            HttpServletRequest request) {
 
-        Logs log = new Logs();
-
-        log.setIp_requisicao(ip);
-        log.setLog(mensagem);
-        log.setLocalDateTime(LocalDateTime.now());
-
-        logsService.salvarLog(log);
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("Ip", ip);
+        payload.put("Action", acao);
+        payload.put("End-Point", endpoint);
+        payload.put("Method", request.getMethod());
+        payload.put("User-Agent", request.getHeader("User-Agent"));
+        payload.put("Hour", LocalDateTime.now().toString());
+        return payload;
     }
 }

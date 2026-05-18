@@ -37,175 +37,114 @@ public class DashboardController {
     private final LogsService logsService;
 
     @GetMapping("/formularios")
-    public ResponseEntity<?> listarTodosForms(
-            HttpServletRequest request) {
+    public ResponseEntity<?> listarTodosForms(HttpServletRequest request) {
 
         String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando carregamento dos formulários do dashboard",
-                ip
-        );
-
-        salvarLog(
-                ip,
-                "Acesso ao dashboard de formulários"
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "listar_formularios", "/api/dashboard/formularios", request
         );
 
         try {
+            var voluntarios = formularioCadastroVoluntarioRepository.findAll();
+            var doacoes = formularioDoacaoMensalRepository.findAll();
+            var faleConosco = faleConoscoRepository.findAll();
 
             Map<String, Object> resposta = new HashMap<>();
+            resposta.put("voluntarios", voluntarios);
+            resposta.put("doancoesMensais", doacoes);
+            resposta.put("faleConosco", faleConosco);
 
-            resposta.put(
-                    "voluntarios",
-                    formularioCadastroVoluntarioRepository.findAll()
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("TotalVoluntarios", voluntarios.size());
+            payload.put("TotalDoacoes", doacoes.size());
+            payload.put("TotalFaleConosco", faleConosco.size());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            resposta.put(
-                    "doancoesMensais",
-                    formularioDoacaoMensalRepository.findAll()
-            );
-
-            resposta.put(
-                    "faleConosco",
-                    faleConoscoRepository.findAll()
-            );
-
-            logger.info(
-                    "[IP: {}] Formulários carregados com sucesso",
-                    ip
-            );
-
-            logger.debug(
-                    "[IP: {}] Dashboard retornado com dados de voluntários, doações e fale conosco",
-                    ip
-            );
-
-            salvarLog(
-                    ip,
-                    "Dashboard carregado com sucesso"
-            );
+            logger.info("[IP: {}] Formulários carregados com sucesso", ip);
+            logsService.salvarLog(payload);
 
             return ResponseEntity.ok(resposta);
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao carregar formulários do dashboard: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao carregar dashboard: " + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao carregar formulários do dashboard: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            return ResponseEntity
-                    .internalServerError()
-                    .body("Erro ao carregar formulários");
+            return ResponseEntity.internalServerError().body("Erro ao carregar formulários");
         }
     }
 
     @PostMapping("/email")
     public ResponseEntity<?> enviarRespostaEmail(
-            @RequestBody EmailDashboardRequest request,
-            HttpServletRequest httpRequest) {
+            @RequestBody EmailDashboardRequest emailRequest,
+            HttpServletRequest request) {
 
-        String ip = IpUtil.getClientIp(httpRequest);
+        String ip = IpUtil.getClientIp(request);
+        long inicio = System.currentTimeMillis();
 
-        logger.info(
-                "[IP: {}] Iniciando envio de resposta por email",
-                ip
+        HashMap<String, Object> payload = construirPayloadBase(
+                ip, "enviar_email", "/api/dashboard/email", request
         );
-
-        salvarLog(
-                ip,
-                "Tentativa de envio de email para " + request.email()
-        );
+        payload.put("Destinatario", emailRequest.email());
+        payload.put("Assunto", emailRequest.assunto());
+        payload.put("Formulario", emailRequest.nomeFormulario());
+        payload.put("NomeDestinatario", emailRequest.nome());
 
         try {
-
-            logger.info(
-                    "[IP: {}] Enviando email para {} | Assunto: {}",
-                    ip,
-                    request.email(),
-                    request.assunto()
-            );
-
             emailService.enviarEmail(
-                    request.email(),
-                    request.assunto(),
-                    request.mensagem()
-            );
-
-            logger.info(
-                    "[IP: {}] Email enviado com sucesso para {}",
-                    ip,
-                    request.email()
-            );
-
-            salvarLog(
-                    ip,
-                    "Email enviado com sucesso para " + request.email()
+                    emailRequest.email(),
+                    emailRequest.assunto(),
+                    emailRequest.mensagem()
             );
 
             respostaService.registrar(
-                    request.nomeFormulario(),
-                    request.nome(),
-                    request.email(),
-                    request.mensagemOriginal(),
-                    request.mensagem()
+                    emailRequest.nomeFormulario(),
+                    emailRequest.nome(),
+                    emailRequest.email(),
+                    emailRequest.mensagemOriginal(),
+                    emailRequest.mensagem()
             );
 
-            logger.info(
-                    "[IP: {}] Resposta registrada com sucesso | Formulário: {} | Destinatário: {}",
-                    ip,
-                    request.nomeFormulario(),
-                    request.email()
-            );
+            payload.put("Status", "Sucesso");
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Resposta registrada no sistema para " + request.email()
-            );
+            logger.info("[IP: {}] Email enviado com sucesso para {}", ip, emailRequest.email());
+            logsService.salvarLog(payload);
 
-            return ResponseEntity.ok(
-                    "Email enviado e resposta salva com sucesso!"
-            );
+            return ResponseEntity.ok("Email enviado e resposta salva com sucesso!");
 
         } catch (Exception e) {
 
-            logger.error(
-                    "[IP: {}] Erro ao enviar resposta de email: {}",
-                    ip,
-                    e.getMessage(),
-                    e
-            );
+            payload.put("Status", "Falha");
+            payload.put("Erro", e.getMessage());
+            payload.put("DuracaoMs", System.currentTimeMillis() - inicio);
 
-            salvarLog(
-                    ip,
-                    "Erro ao enviar email para "
-                            + request.email()
-                            + ": "
-                            + e.getMessage()
-            );
+            logger.error("[IP: {}] Erro ao enviar resposta de email: {}", ip, e.getMessage(), e);
+            logsService.salvarLog(payload);
 
-            return ResponseEntity
-                    .internalServerError()
-                    .body("Erro ao enviar email");
+            return ResponseEntity.internalServerError().body("Erro ao enviar email");
         }
     }
 
-    private void salvarLog(String ip, String mensagem) {
+    private HashMap<String, Object> construirPayloadBase(
+            String ip,
+            String acao,
+            String endpoint,
+            HttpServletRequest request) {
 
-        Logs log = new Logs();
-
-        log.setIp_requisicao(ip);
-        log.setLog(mensagem);
-        log.setLocalDateTime(LocalDateTime.now());
-
-        logsService.salvarLog(log);
+        HashMap<String, Object> payload = new HashMap<>();
+        payload.put("Ip", ip);
+        payload.put("Action", acao);
+        payload.put("End-Point", endpoint);
+        payload.put("Method", request.getMethod());
+        payload.put("User-Agent", request.getHeader("User-Agent"));
+        payload.put("Hour", LocalDateTime.now().toString());
+        return payload;
     }
 }
