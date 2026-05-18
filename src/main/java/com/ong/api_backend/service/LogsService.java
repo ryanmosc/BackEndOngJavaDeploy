@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +28,11 @@ public class LogsService {
             throw  new DadosInvalidosException("Erro inesperado servidor");
         }
 
+    }
+
+
+    public List<Logs> listarLogs(){
+        return repository.findAll();
     }
 
 
